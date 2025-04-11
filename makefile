@@ -31,7 +31,6 @@ clean:
 folders:
 	@echo "Creating folders..."
 	@mkdir -p $(OBJ_DIR)
-
 build: folders
 	@echo "Building Compiling and Linking..."
 	@$(CC) $(CFLAGS) $(SRC_FILES) $(CLIBS) -o $(OBJ_DIR)/$(OUTPUT).o
