@@ -1,7 +1,7 @@
 #Compiler Flags
 CC = g++
 CFLAGS = -fdiagnostics-color=always -g -Wall -Wextra -std=c++11 -O2
-CLIBS = -lm
+CLIBS = -lm -lSDL3 -lSDL3_ttf -lSDL3_image
 
 #Folders
 SRC_DIR = Source
