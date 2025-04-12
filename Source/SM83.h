@@ -59,14 +59,14 @@ private:
     /*
      * 8-Bit Loads
      * LD nn,n
-     * @param opcode The opcode to execute.
+     * @param uint8_t opcode The opcode to execute.
      * @note Put value nn into n.
      */
     void LD_nn_n(uint8_t opcode);
     /*
      * 8-Bit Loads
      * LD r1,r2
-     * @param opcode The opcode to execute.
+     * @param uint8_t opcode The opcode to execute.
      * @note Put value r2 into r1.
      */
     void LD_r1_r2(uint8_t opcode);
@@ -74,20 +74,21 @@ private:
     /*
      * 8-Bit Loads
      * LD A,n
-     * @param opcode The opcode to execute.
+     * @param uint8_t opcode The opcode to execute.
      * @note Put value n into A.
      */
     void LD_A_n(uint8_t opcode);
     /*
      * 8-Bit Loads
      * LD n,A
-     * @param opcode The opcode to execute.
+     * @param uint8_t opcode The opcode to execute.
      * @note Put value A into n.
      */
     void LD_n_A(uint8_t opcode);
     /*
      * 8-Bit Loads
      * LD_A_C
+     * @param uint8_t opcode The opcode to execute.
      * @note Put value address 0xFF00 + Register C into A.
      */
     void LD_A_C(void);
@@ -141,7 +142,7 @@ private:
     /*
      * 16-Bit Loads
      * LD nn,nn
-     * @param dst The destination address.
+     * @param uint16_t &dst The destination address.
      * @note Put value nn into address nn.
      */
     void LD_n_nn(uint16_t &dst);
@@ -150,32 +151,53 @@ private:
      * LD SP,HL
      * @note Put value HL into SP.
      */
-    void LD_SP_HL();
+    void LD_SP_HL(void);
     /*
      * 16-Bit Loads
      * LD HL,SP+n
      * @note Put value SP+n into HL.
      */
-    void LD_HL_SP_n();
+    void LD_HL_SP_n(void);
     /*
      * 16-Bit Loads
      * LD nn,SP
      * @note Put value SP into address nn.
      */
-    void LD_nn_SP();
+    void LD_nn_SP(void);
     /*
      * 16-Bit Loads
      * PUSH nn
-     * @param src The source address.
+     * @param uint16_t src The source address.
      * @note Push value nn into stack.
      */
     void PUSH_nn(uint16_t src);
     /*
      * 16-Bit Loads
      * POP nn
-     * @param dst The destination address.
+     * @param uint16_t &dst The destination address.
      * @note Pop value from stack into nn.
      */
     void POP_nn(uint16_t &dst);
+
+    /*
+     * 8-Bit ALU
+     */
+private:
+    /*
+    * 8-Bit ALU
+    * ADD A,n
+    * @param uint8_t n for n= A,B,C,D,E,H,L,(HL),#
+    * @note Add n to Register A.
+    */
+    void ADD_A_n(uint8_t n);
+    void ADC_A_n(uint8_t n);
+    void SUB_A_n(uint8_t n);
+    void SBC_A_n(uint8_t n);
+    void AND_A_n(uint8_t n);
+    void OR_A_n(uint8_t n);
+    void XOR_A_n(uint8_t n);
+    void CP_A_n(uint8_t n);
+    void INC_n(uint8_t &n);
+    void DEC_n(uint8_t &n);
 };
 #endif
