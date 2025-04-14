@@ -348,10 +348,7 @@ void SM83::ADD_A_n(uint8_t n) {
     uint8_t tmpA = Registers.A;
     uint16_t result = Registers.A + n;
 
-    Registers.clearFlag(Registers.ZERO_FLAG);
     Registers.clearFlag(Registers.SUBTRACT_FLAG);
-    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
-    Registers.clearFlag(Registers.CARRY_FLAG);
 
     if ((result & 0xFF) == 0) {
         Registers.setFlag(Registers.ZERO_FLAG);
@@ -371,10 +368,7 @@ void SM83::ADC_A_n(uint8_t n) {
     uint8_t tmpA = Registers.A;
     uint16_t result = Registers.A + n + carry;
 
-    Registers.clearFlag(Registers.ZERO_FLAG);
     Registers.clearFlag(Registers.SUBTRACT_FLAG);
-    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
-    Registers.clearFlag(Registers.CARRY_FLAG);
 
     if ((result & 0xFF) == 0) {
         Registers.setFlag(Registers.ZERO_FLAG);
@@ -394,10 +388,7 @@ void SM83::SUB_A_n(uint8_t n) {
     uint8_t tmpA = Registers.A;
     uint16_t result = Registers.A - n;
 
-    Registers.clearFlag(Registers.ZERO_FLAG);
     Registers.setFlag(Registers.SUBTRACT_FLAG);
-    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
-    Registers.clearFlag(Registers.CARRY_FLAG);
 
     if ((result & 0xFF) == 0) {
         Registers.setFlag(Registers.ZERO_FLAG);
@@ -413,11 +404,149 @@ void SM83::SUB_A_n(uint8_t n) {
 
     Registers.A = static_cast<uint8_t>(result & 0xFF);
 }
-void SM83::SBC_A_n(uint8_t n) {}
-void SM83::AND_A_n(uint8_t n) {}
-void SM83::OR_A_n(uint8_t n) {}
-void SM83::XOR_A_n(uint8_t n) {}
-void SM83::CP_A_n(uint8_t n) {}
-void SM83::INC_n(uint8_t &n) {}
-void SM83::DEC_n(uint8_t &n) {}
+void SM83::SBC_A_n(uint8_t n) {
+    uint8_t carry = Registers.checkFlag(Registers.CARRY_FLAG) ? 1 : 0;
+    uint8_t tmpA = Registers.A;
+    uint16_t result = tmpA - n - carry;
+
+    Registers.setFlag(Registers.SUBTRACT_FLAG);
+
+    if ((result & 0xFF) == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+
+    if ((tmpA & 0x0F) < ((n & 0x0F) + carry)) {
+        Registers.setFlag(Registers.HALF_CARRY_FLAG);
+    }
+
+    if (tmpA < (n + carry)) {
+        Registers.setFlag(Registers.CARRY_FLAG);
+    }
+
+    Registers.A = static_cast<uint8_t>(result & 0xFF);
+}
+void SM83::AND_A_n(uint8_t n) {
+
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+    Registers.setFlag(Registers.HALF_CARRY_FLAG);
+    Registers.clearFlag(Registers.CARRY_FLAG);
+
+    Registers.A &= n;
+
+    if (Registers.A == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+}
+void SM83::OR_A_n(uint8_t n) {
+
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
+    Registers.clearFlag(Registers.CARRY_FLAG);
+
+    Registers.A |= n;
+
+    if (Registers.A == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+}
+void SM83::XOR_A_n(uint8_t n) {
+
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
+    Registers.clearFlag(Registers.CARRY_FLAG);
+
+    Registers.A ^= n;
+
+    if (Registers.A == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+}
+void SM83::CP_A_n(uint8_t n) {
+    uint8_t tmpA = Registers.A;
+
+    Registers.setFlag(Registers.SUBTRACT_FLAG);
+
+    if (tmpA == n) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+
+    if ((tmpA & 0x0F) < (n & 0x0F)) {
+        Registers.setFlag(Registers.HALF_CARRY_FLAG);
+    }
+
+    if (tmpA < n) {
+        Registers.setFlag(Registers.CARRY_FLAG);
+    }
+}
+void SM83::INC_n(uint8_t &n) {
+    uint8_t result = n + 1;
+
+    Registers.setFlag(Registers.SUBTRACT_FLAG);
+
+    if (result == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+
+    if ((n & 0x0F) == 0x0F) {
+        Registers.setFlag(Registers.HALF_CARRY_FLAG);
+    }
+
+    n = result;
+}
+void SM83::DEC_n(uint8_t &n) {
+    uint8_t result = n - 1;
+
+    Registers.setFlag(Registers.SUBTRACT_FLAG);
+
+    if (result == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+
+    if ((n & 0x0F) == 0x00) {
+        Registers.setFlag(Registers.HALF_CARRY_FLAG);
+    }
+
+    n = result;
+}
+#pragma endregion
+
+#pragma region 16-Bit ALU Instructions
+void SM83::ADD_HL_nn(uint16_t nn) {
+    uint32_t result = Registers.HL + nn;
+
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+
+    if (((Registers.HL & 0x0FFF) + (nn & 0x0FFF)) > 0x0FFF) {
+        Registers.setFlag(Registers.HALF_CARRY_FLAG);
+    }
+
+    if (result > 0xFFFF) {
+        Registers.setFlag(Registers.CARRY_FLAG);
+    }
+
+    Registers.HL = static_cast<uint16_t>(result & 0xFFFF);
+}
+void SM83::ADD_SP_n() {
+    int8_t immediate = static_cast<int8_t>(n8());
+    uint16_t tmpSP = Registers.SP;
+    uint16_t result = tmpSP + immediate;
+
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+
+    if (((tmpSP & 0x0F) + (immediate & 0x0F)) > 0x0F) {
+        Registers.setFlag(Registers.HALF_CARRY_FLAG);
+    }
+
+    if (((tmpSP & 0xFF) + (immediate & 0xFF)) > 0xFF) {
+        Registers.setFlag(Registers.CARRY_FLAG);
+    }
+
+    Registers.SP = result;
+}
+void SM83::INC_nn(uint16_t &nn) {
+    nn++;
+}
+void SM83::DEC_nn(uint16_t &nn) {
+    nn--;
+}
 #pragma endregion

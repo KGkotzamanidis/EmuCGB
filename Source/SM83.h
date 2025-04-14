@@ -184,20 +184,107 @@ private:
      */
 private:
     /*
-    * 8-Bit ALU
-    * ADD A,n
-    * @param uint8_t n for n= A,B,C,D,E,H,L,(HL),#
-    * @note Add n to Register A.
-    */
+     * 8-Bit ALU
+     * ADD A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Add n to Register A.
+     */
     void ADD_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * ADC A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Add n + Carry flag to Register A.
+     */
     void ADC_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * SUB A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Subtract n from Register A.
+     */
     void SUB_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * SBC A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Subtract n + Carry Flag form Register A.
+     */
     void SBC_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * AND A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Logically AND n with Register A, result in Register A.
+     */
     void AND_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * OR A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Logically OR n with Register A, result in Register A.
+     */
     void OR_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * XOR A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Logically XOR n with Register A, result in Register A.
+     */
     void XOR_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * CP A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL),#
+     * @note Compare Register A with n, This is basically an Register A -n
+     * @note subtraction instruction but the results are thrown away.
+     */
     void CP_A_n(uint8_t n);
+    /*
+     * 8-Bit ALU
+     * INC A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL)
+     * @note Increment register n.
+     */
     void INC_n(uint8_t &n);
+    /*
+     * 8-Bit ALU
+     * DEC A,n
+     * @param uint8_t n for n = A,B,C,D,E,H,L,(HL)
+     * @note Decrement register n.
+     */
     void DEC_n(uint8_t &n);
+
+    /*
+     * 16-Bit  ALU
+     */
+private:
+    /*
+     * 16-Bit ALU
+     * ADD HL,nn
+     * @param uint16_t n for n = BC,DE,HL,SP
+     * @note add nn to Register HL.
+     */
+    void ADD_HL_nn(uint16_t nn);
+    /*
+     * 16-Bit ALU
+     * ADD SP
+     * @note add immediate value (#) to Register SP.
+     */
+    void ADD_SP_n();
+    /*
+     * 16-Bit ALU
+     * INC nn
+     * @param uint16_t nn for nn BC,DE,HL,SP
+     * @note Increment register nn.
+     */
+    void INC_nn(uint16_t &nn);
+    /*
+     * 16-Bit ALU
+     * DEC nn
+     * @param uint16_t nn for nn BC,DE,HL,SP
+     * @note Decrement register nn.
+     */
+    void DEC_nn(uint16_t &nn);
 };
 #endif
