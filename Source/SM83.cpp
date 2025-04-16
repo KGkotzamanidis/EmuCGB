@@ -363,6 +363,7 @@ void SM83::ADD_A_n(uint8_t n) {
     }
     Registers.A = static_cast<uint8_t>(result & 0xFF);
 }
+
 void SM83::ADC_A_n(uint8_t n) {
     uint8_t carry = Registers.checkFlag(Registers.CARRY_FLAG) ? 1 : 0;
     uint8_t tmpA = Registers.A;
@@ -384,6 +385,7 @@ void SM83::ADC_A_n(uint8_t n) {
 
     Registers.A = static_cast<uint8_t>(result & 0xFF);
 }
+
 void SM83::SUB_A_n(uint8_t n) {
     uint8_t tmpA = Registers.A;
     uint16_t result = Registers.A - n;
@@ -404,6 +406,7 @@ void SM83::SUB_A_n(uint8_t n) {
 
     Registers.A = static_cast<uint8_t>(result & 0xFF);
 }
+
 void SM83::SBC_A_n(uint8_t n) {
     uint8_t carry = Registers.checkFlag(Registers.CARRY_FLAG) ? 1 : 0;
     uint8_t tmpA = Registers.A;
@@ -425,6 +428,7 @@ void SM83::SBC_A_n(uint8_t n) {
 
     Registers.A = static_cast<uint8_t>(result & 0xFF);
 }
+
 void SM83::AND_A_n(uint8_t n) {
 
     Registers.clearFlag(Registers.SUBTRACT_FLAG);
@@ -437,6 +441,7 @@ void SM83::AND_A_n(uint8_t n) {
         Registers.setFlag(Registers.ZERO_FLAG);
     }
 }
+
 void SM83::OR_A_n(uint8_t n) {
 
     Registers.clearFlag(Registers.SUBTRACT_FLAG);
@@ -449,6 +454,7 @@ void SM83::OR_A_n(uint8_t n) {
         Registers.setFlag(Registers.ZERO_FLAG);
     }
 }
+
 void SM83::XOR_A_n(uint8_t n) {
 
     Registers.clearFlag(Registers.SUBTRACT_FLAG);
@@ -461,6 +467,7 @@ void SM83::XOR_A_n(uint8_t n) {
         Registers.setFlag(Registers.ZERO_FLAG);
     }
 }
+
 void SM83::CP_A_n(uint8_t n) {
     uint8_t tmpA = Registers.A;
 
@@ -478,6 +485,7 @@ void SM83::CP_A_n(uint8_t n) {
         Registers.setFlag(Registers.CARRY_FLAG);
     }
 }
+
 void SM83::INC_n(uint8_t &n) {
     uint8_t result = n + 1;
 
@@ -493,6 +501,7 @@ void SM83::INC_n(uint8_t &n) {
 
     n = result;
 }
+
 void SM83::DEC_n(uint8_t &n) {
     uint8_t result = n - 1;
 
@@ -526,6 +535,7 @@ void SM83::ADD_HL_nn(uint16_t nn) {
 
     Registers.HL = static_cast<uint16_t>(result & 0xFFFF);
 }
+
 void SM83::ADD_SP_n() {
     int8_t immediate = static_cast<int8_t>(n8());
     uint16_t tmpSP = Registers.SP;
@@ -543,10 +553,126 @@ void SM83::ADD_SP_n() {
 
     Registers.SP = result;
 }
+
 void SM83::INC_nn(uint16_t &nn) {
     nn++;
 }
+
 void SM83::DEC_nn(uint16_t &nn) {
     nn--;
+}
+#pragma endregion
+
+#pragma region Miscellaneous Instructions
+void SM83::SWAP_n(uint8_t n) {
+    uint8_t result = ((n & 0x0F) << 4) | ((n & 0xF0) >> 4);
+
+    if (result == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
+    Registers.clearFlag(Registers.CARRY_FLAG);
+
+    n = result;
+}
+
+void SM83::DAA() {
+    uint8_t correction = 0;
+    bool carry = Registers.checkFlag(Registers.CARRY_FLAG);
+
+    if (!Registers.checkFlag(Registers.SUBTRACT_FLAG)) {
+        if (Registers.checkFlag(Registers.HALF_CARRY_FLAG) || (Registers.A & 0x0F) > 9) {
+            correction |= 0x06;
+        }
+
+        if (carry | Registers.A > 0x99) {
+            correction |= 0x60;
+            carry = true;
+        }
+
+        Registers.A += correction;
+    } else {
+        if (Registers.checkFlag(Registers.HALF_CARRY_FLAG)) {
+            correction |= 0x06;
+        }
+        if (carry) {
+            correction |= 0x60;
+        }
+        Registers.A -= correction;
+    }
+
+    if (Registers.A == 0) {
+        Registers.setFlag(Registers.ZERO_FLAG);
+    }
+    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
+
+    if (carry) {
+        Registers.setFlag(Registers.CARRY_FLAG);
+    } else {
+        Registers.clearFlag(Registers.CARRY_FLAG);
+    }
+}
+
+void SM83::CPL() {
+    Registers.A = ~Registers.A;
+
+    Registers.setFlag(Registers.SUBTRACT_FLAG);
+    Registers.setFlag(Registers.HALF_CARRY_FLAG);
+}
+
+void SM83::CCF() {
+    bool carry = Registers.checkFlag(Registers.CARRY_FLAG);
+
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
+
+    if (carry) {
+        Registers.clearFlag(Registers.CARRY_FLAG);
+    } else {
+        Registers.setFlag(Registers.CARRY_FLAG);
+    }
+}
+
+void SM83::SCF() {
+    Registers.clearFlag(Registers.SUBTRACT_FLAG);
+    Registers.clearFlag(Registers.HALF_CARRY_FLAG);
+    Registers.setFlag(Registers.CARRY_FLAG);
+}
+
+void SM83::NOP() {}
+
+void SM83::HALT() {
+    Registers.isHalted = true;
+    bool interruptEnabled = Registers.IME;
+    bool interruptPending = (mmu->readByte(IFaddress) & mmu->readByte(IEaddress)) != 0;
+
+    if (!interruptEnabled && interruptPending) {
+        Registers.isHalted = false;
+    }
+}
+
+void SM83::STOP() {
+    uint8_t key1 = mmu->readByte(KEY1address);
+
+    if ((key1 & 0x1) == 0x1) {
+        Registers.DoubleSpeed = !Registers.DoubleSpeed;
+    }
+
+    mmu->writeByte(KEY1address, (key1 & 0x7E) | ((Registers.DoubleSpeed ? 1 : 0) << 7));
+}
+
+void SM83::DI() {
+    Registers.IME = false;
+}
+
+void SM83::EI() {
+    Registers.IME_pending = true;
+
+    if (Registers.IME_pending) {
+        Registers.IME = true;
+        Registers.IME_pending = false;
+    }
 }
 #pragma endregion
