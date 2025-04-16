@@ -57,29 +57,39 @@ struct CPURegisters {
     };
 
     enum Flags {
+        /*Z*/
         ZERO_FLAG = 1 << 7,
+        /*N*/
         SUBTRACT_FLAG = 1 << 6,
+        /*H*/
         HALF_CARRY_FLAG = 1 << 5,
+        /*C*/
         CARRY_FLAG = 1 << 4
     };
     void setFlag(Flags flag) { F |= flag; }
     void clearFlag(Flags flag) { F &= ~flag; }
     bool checkFlag(Flags flag) const { return (F & flag) != 0; }
+
+    bool isHalted = false;
+    bool IME = false;
+    bool IME_pending = false;
+    bool haltBug = false;
+    bool DoubleSpeed = false;
 };
 
-struct PPURegisters{
-
+struct PPURegisters {
 };
 
-struct INTERRUPTRegisters{
+struct INTERRUPTRegisters {
     uint8_t IF;
     uint8_t IE;
 };
 
-struct TIMERRegisters{
+struct TIMERRegisters {
     uint8_t TMA;
     uint8_t TAC;
     uint8_t TMC;
     uint8_t TIMA;
 };
+
 #endif
