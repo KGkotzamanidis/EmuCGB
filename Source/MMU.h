@@ -20,7 +20,9 @@
 
 #include "BIOS.h"
 #include "ROM.h"
+#include "EmulationUtils.h"
 #include "Interrupts.h"
+
 class MMU {
 public:
     MMU(BIOS &bios, ROM &rom);
