@@ -286,5 +286,122 @@ private:
      * @note Decrement register nn.
      */
     void DEC_nn(uint16_t &nn);
+
+    /*
+     * Miscellaneous
+     */
+private:
+    /*
+     * SWAP n
+     * @param uint8_t n for n A,B,C,D,E,H,L,(HL)
+     * @note Swap upper & lower nibles of n.
+     */
+    void SWAP_n(uint8_t n);
+    /*
+     * DAA
+     * @note Decimal adjust Register A.
+     * @note This instruction adjusts Register A so that the
+     * @note correct representation of Binary Coded Decimal (BCD)
+     * @note is obtained.
+     */
+    void DAA(void);
+    /*
+     * CPL
+     * @note Complement Register A. (Flip all bits.)
+     */
+    void CPL(void);
+    /*
+     * CCF
+     * @note Complement carry flag.
+     * @note If C Flag is  set, then reset it.
+     * @note If C Flag is reset, then set it.
+     */
+    void CCF(void);
+    /*
+     * SCF
+     * @note Set Carry Flag.
+     */
+    void SCF(void);
+    void NOP(void);
+    /*
+     * HALT
+     * @note Power down CPU until an interrupt occurs. Use this
+     * @note when ever possible to reduce energy consumption.
+     */
+    void HALT(void);
+    /*
+     * STOP
+     * @note Halt CPU & LCD display until button pressed.
+     */
+    void STOP(void);
+    /*
+     * DI
+     * @note This instruction disables interrupts but not
+     * @note immediately. Interrupts are disabled after
+     * @note instruction after DI is executed.
+     */
+    void DI(void);
+    /*
+     * EI
+     * @note Enable interrupts. This instruction enable interrupts
+     * @note but not immediately. Interrupts are enable after
+     * @note instruction after EI is executed.
+     */
+    void EI(void);
+
+    /*
+     * Rotates & Shifts
+     */
+private:
+    void RLCA(void);
+    void RLA(void);
+    void RRCA(void);
+    void RRA(void);
+    void RLC_n(uint8_t n);
+    void RL_n(uint8_t n);
+    void RRC_n(uint8_t n);
+    void RR_n(uint8_t n);
+    void SLA_n(uint8_t n);
+    void SRA_n(uint8_t n);
+    void SRL_n(uint8_t n);
+
+    /*
+     * Bit Opcodes
+     */
+private:
+    void BIT_b_r(int possition, uint8_t r);
+    void SET_b_r(int possition, uint8_t r);
+    void RES_b_r(int possition, uint8_t r);
+
+    /*
+     * Jumps
+     */
+private:
+    void JP_nn(uint16_t nn);
+    int JP_cc_nn(int cc);
+    void JP_HL(void);
+    void JR_n(void);
+    int JR_cc_n(int cc);
+
+    /*
+     * Calls
+     */
+private:
+    void CALL_nn(void);
+    int CALL_cc_nn(int cc);
+
+    /*
+     * Restarts
+     */
+private:
+    void RST_n(uint8_t n);
+
+    /*
+     * Returns
+     */
+private:
+    void RET(void);
+    int RET_cc(int cc);
+    void RETI(void);
 };
 #endif
