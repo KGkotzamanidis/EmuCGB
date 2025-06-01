@@ -34,13 +34,19 @@ private:
 
     int cycleCount;
 
+    void executeInstruction(void);
+    void executePrefixedInstruction(void);
+
+    /*
+     * Private functions
+     * @note Fetch the next opcode from memory.
+     * @return The next opcode.
+     */
+private:
     uint8_t n8();
     uint16_t n16();
 
     uint16_t a8();
-
-    void executeInstruction(void);
-    void executePrefixedInstruction(void);
 
     /*
      * Private functions
