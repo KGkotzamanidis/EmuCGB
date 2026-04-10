@@ -302,7 +302,7 @@ private:
      * @param uint8_t n for n A,B,C,D,E,H,L,(HL)
      * @note Swap upper & lower nibles of n.
      */
-    void SWAP_n(uint8_t n);
+    void SWAP_n(uint8_t &n);
     /*
      * DAA
      * @note Decimal adjust Register A.
@@ -363,21 +363,21 @@ private:
     void RLA(void);
     void RRCA(void);
     void RRA(void);
-    void RLC_n(uint8_t n);
-    void RL_n(uint8_t n);
-    void RRC_n(uint8_t n);
-    void RR_n(uint8_t n);
-    void SLA_n(uint8_t n);
-    void SRA_n(uint8_t n);
-    void SRL_n(uint8_t n);
+    void RLC_n(uint8_t &n);
+    void RL_n(uint8_t &n);
+    void RRC_n(uint8_t &n);
+    void RR_n(uint8_t &n);
+    void SLA_n(uint8_t &n);
+    void SRA_n(uint8_t &n);
+    void SRL_n(uint8_t &n);
 
     /*
      * Bit Opcodes
      */
 private:
     void BIT_b_r(int possition, uint8_t r);
-    void SET_b_r(int possition, uint8_t r);
-    void RES_b_r(int possition, uint8_t r);
+    void SET_b_r(int possition, uint8_t &r);
+    void RES_b_r(int possition, uint8_t &r);
 
     /*
      * Jumps
