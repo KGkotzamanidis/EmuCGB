@@ -359,55 +359,130 @@ private:
      * Rotates & Shifts
      */
 private:
+    /*
+    * RLCA
+    */
     void RLCA(void);
+    /*
+    * RLA
+    */
     void RLA(void);
+    /*
+    * RRCA
+    */
     void RRCA(void);
+    /*
+    * RRA
+    */
     void RRA(void);
+    /*
+    * RLC n
+    */
     void RLC_n(uint8_t &n);
+    /*
+    * RL n
+    */
     void RL_n(uint8_t &n);
+    /*
+    * RRC n
+    */
     void RRC_n(uint8_t &n);
+    /*
+    * RR n
+    */
     void RR_n(uint8_t &n);
+    /*
+    * SLA n
+    */
     void SLA_n(uint8_t &n);
+    /*
+    * SRA n
+    */
     void SRA_n(uint8_t &n);
+    /*
+    * SRL n
+    */
     void SRL_n(uint8_t &n);
 
     /*
      * Bit Opcodes
      */
 private:
+    /*
+    * BIT n
+    */
     void BIT_b_r(int possition, uint8_t r);
+    /*
+    * SET n
+    */
     void SET_b_r(int possition, uint8_t &r);
+    /*
+    * RES n
+    */
     void RES_b_r(int possition, uint8_t &r);
 
     /*
      * Jumps
      */
 private:
+    /*
+    * JP nn
+    */
     void JP_nn(uint16_t nn);
+    /*
+    * JP nn
+    */
     int JP_cc_nn(int cc);
+    /*
+    * JP
+    */
     void JP_HL(void);
+    /*
+    * JR
+    */
     void JR_n(void);
+    /*
+    * JR nn
+    */
     int JR_cc_n(int cc);
 
     /*
      * Calls
      */
 private:
+    /*
+    * CALL 
+    */
     void CALL_nn(void);
+    /*
+    * CALL nn
+    */
     int CALL_cc_nn(int cc);
 
     /*
      * Restarts
      */
 private:
+    /*
+    * RST n
+    */
     void RST_n(uint8_t n);
 
     /*
      * Returns
      */
 private:
+    /*
+    * RET
+    */
     void RET(void);
+    /*
+    * RET nn
+    */
     int RET_cc(int cc);
+    /*
+    * RETI
+    */
     void RETI(void);
 };
 #endif
