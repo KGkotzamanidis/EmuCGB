@@ -46,9 +46,14 @@
 ### 🔧 Build Instructions
 ```bash
 # Clone the repository
-git clone [https://github.com/KGkotzamanidis/EmuCGB.git](https://github.com/KGkotzamanidis/EmuCGB.git)
+git clone https://github.com/KGkotzamanidis/EmuCGB.git
 cd EmuCGB
 
-# Compile
-cmake ..
-make
+# Download the Libraries
+make install
+
+# Build the Project
+make build
+
+# Run the Project
+make run
