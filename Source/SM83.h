@@ -25,7 +25,6 @@ class SM83 {
 public:
     SM83(MMU &mmu);
 
-    void run(void);
     int step();
 
 private:

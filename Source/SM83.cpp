@@ -63,10 +63,7 @@ const int CGB_PrefixedInstruction_Cycle[256] ={
 // clang-format on
 
 SM83::SM83(MMU &mmu) : mmu(&mmu) {
-    cycleCount = 0;
-}
-
-void SM83::run() {
+    std::printf("-=SM83 class initialized=-\n");
 }
 
 int SM83::step() {
