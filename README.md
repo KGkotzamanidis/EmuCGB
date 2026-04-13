@@ -41,16 +41,13 @@
 ### 📋 Prerequisites
 * **Compiler**: C++17 or higher
 * **Build Tool**: [CMake](https://cmake.org/) (v3.10+)
-* **Library**: [SDL2](https://www.libsdl.org/)
+* **Library**: [SDL3](https://www.libsdl.org/)
 
 ### 🔧 Build Instructions
 ```bash
 # Clone the repository
 git clone [https://github.com/KGkotzamanidis/EmuCGB.git](https://github.com/KGkotzamanidis/EmuCGB.git)
 cd EmuCGB
-
-# Create build directory
-mkdir build && cd build
 
 # Compile
 cmake ..
