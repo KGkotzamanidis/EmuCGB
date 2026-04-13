@@ -1,16 +1,4 @@
 {
-    "makefile.launchConfigurations": [
-        {
-            "cwd": "/home/konstantinos/Documents/Visual Studio Code/EmuCGB/Binary",
-            "binaryPath": "/home/konstantinos/Documents/Visual Studio Code/EmuCGB/Binary/GkotzamBoy",
-            "binaryArgs": []
-        },
-        {
-            "cwd": "/home/konstantinos/Documents/Visual Studio Code/EmuCGB/Object",
-            "binaryPath": "/home/konstantinos/Documents/Visual Studio Code/EmuCGB/Object/GkotzamBoy.o",
-            "binaryArgs": []
-        }
-    ],
     "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: LLVM, UseTab: Never, IndentWidth: 4, TabWidth: 4, BreakBeforeBraces: Attach, AllowShortIfStatementsOnASingleLine: false, IndentCaseLabels: false, ColumnLimit: 0, AccessModifierOffset: -4, NamespaceIndentation: All, FixNamespaceComments: false }",
     "files.associations": {
         "any": "cpp",
@@ -88,5 +76,14 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp"
-    }
+    },
+    "makefile.makefilePath": "/home/konstantinos/Documents/VScode/EmuCGB/makefile",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/konstantinos/Documents/VScode/EmuCGB/Object",
+            "binaryPath": "/home/konstantinos/Documents/VScode/EmuCGB/Object/GkotzamBoy",
+            "binaryArgs": []
+        }
+    ],
+    "makefile.buildLog": "/home/konstantinos/Documents/VScode/EmuCGB/Logs"
 }
