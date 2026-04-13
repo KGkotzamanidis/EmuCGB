@@ -28,7 +28,6 @@ public:
     ROM();
 
     void loadROM(std::string ROMFilePath);
-    void info(void);
 
     uint8_t receivingData(uint16_t address);
     void sendingData(uint16_t address, uint8_t data);
