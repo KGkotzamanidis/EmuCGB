@@ -21,11 +21,12 @@
 #include "BIOS.h"
 #include "ROM.h"
 #include "EmulationUtils.h"
-#include "Interrupts.h"
+#include "Timers.h"
+#include "WRAM.h"
 
 class MMU {
 public:
-    MMU(BIOS &bios, ROM &rom);
+    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts,Timers &timers, WRAM &wram);
     /*
      * 8Bit read/write functions
      * @param address The address to read from or write to.
@@ -35,6 +36,7 @@ public:
      */
     uint8_t readByte(uint16_t address);
     void writeByte(uint16_t address, uint8_t data);
+
     /*
      * 16Bit read/write functions
      * @param address The address to read from or write to.
@@ -49,5 +51,10 @@ private:
     BIOS *bios = nullptr;
     ROM *rom = nullptr;
     Interrupts *interrupts = nullptr;
+    Timers *timers = nullptr;
+    WRAM *wram = nullptr;
+
+    std::vector<uint8_t> HRAM = std::vector<uint8_t>(0x7E,0);
+    uint8_t KEY_0, KEY_1;
 };
 #endif
