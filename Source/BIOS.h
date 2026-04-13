@@ -30,7 +30,8 @@ public:
     std::vector<uint8_t> BIOSData;
 
     bool isBIOSLoaded;
-
+    bool BootBIOS;
+    
     void loadBIOS(std::string BIOSFilePath);
 
     uint8_t receivingData(uint16_t address);

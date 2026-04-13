@@ -16,13 +16,8 @@
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "BIOS.h"
-BIOS::BIOS() {
-    BIOSData.clear();
-    
-    BIOSSize = 0;
-    isBIOSLoaded = false;
-    BIOSPtr = nullptr;
 
+BIOS::BIOS() {
     std::printf("-=BIOS class initialized=-\n");
 }
 
@@ -44,6 +39,7 @@ void BIOS::loadBIOS(std::string BIOSFilePath) {
     } else {
         std::printf("BIOS file not found\n");
         isBIOSLoaded = false;
+        BootBIOS = false;
         BIOSSize = 0;
         BIOSPtr = nullptr;
         return;
