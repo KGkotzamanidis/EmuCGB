@@ -1813,5 +1813,3 @@ void SM83::RETI() {
     Registers.IME = true; // Re-enable interrupts immediately on return
 }
 #pragma endregion
-
-// Remove the duplicate 0x7F case from LD_n_A ? it belongs only in LD_A_n.
