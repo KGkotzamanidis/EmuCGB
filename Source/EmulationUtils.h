@@ -17,6 +17,7 @@
  */
 #ifndef _EMULATION_UTILS_H_
 #define _EMULATION_UTILS_H_
+
 /* GameBoy Registers Addresses */
 #define P1_JOYaddress		0xFF00  // Joypad
 #define SBaddress			0xFF01  // Serial transfer data
