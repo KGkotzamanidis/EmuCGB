@@ -24,9 +24,9 @@
 
 class Interrupts {
 public:
+    INTERRUPTRegisters Registers;    
     Interrupts();
-    INTERRUPTRegisters Registers;
-
+    
 private:
 };
 #endif
