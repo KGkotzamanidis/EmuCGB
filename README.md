@@ -3,7 +3,7 @@
 
 [![C++](https://img.shields.io/badge/C++-17-blue.svg?style=for-the-badge&logo=c%2B%2B)](https://isocpp.org/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey.svg?style=for-the-badge)](https://github.com/KGkotzamanidis/EmuCGB)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPLv3-green.svg?style=for-the-badge)](LICENSE)
 
 ---
 
