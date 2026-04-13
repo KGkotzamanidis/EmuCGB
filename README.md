@@ -1,5 +1,3 @@
-content = """# <img src="https://raw.githubusercontent.com/PKMProject/Icons/master/pokedex/regular/porygon.png" width="40"> EmuCGB
-
 ### **A High-Performance Game Boy & Game Boy Color Emulator**
 > **Built with C++ for precision and speed.**
 
