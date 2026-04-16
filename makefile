@@ -69,7 +69,7 @@ help:
 debug:
 	@$(MAKE) DEBUG=1 build
 	@echo "Built in Debug Mode"
-gbd:
+gdb:
 	@$(MAKE) DEBUG=1 build
 	@echo "Running with gdb..."
 	@gdb ./$(TARGET)
