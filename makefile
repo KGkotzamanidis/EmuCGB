@@ -99,7 +99,7 @@ run: build
 # 								Clean Target
 clean:
 	@echo "Cleaning build artifacts..."
-	@rm -rf $(OBJ_DIR)
+	@rm -rf Object
 # ======================================================================
 # 								Download Target
 # This target is a placeholder for downloading dependencies like SDL3.
