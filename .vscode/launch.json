@@ -5,7 +5,7 @@
             "name": "Debug EmuCGB",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Object/GkotzamBoy",
+            "program": "${workspaceFolder}/Object/Debug/GkotzamBoy",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
