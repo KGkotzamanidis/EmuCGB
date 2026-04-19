@@ -48,7 +48,7 @@ OUTPUT		= GkotzamBoy
 TARGET		= $(OBJ_DIR)/$(OUTPUT)
 # ======================================================================
 # 							Phony Targets
-.PHONY: help all clean install uninstall build debug gdb run
+.PHONY: help all clean cleanall install uninstall build debug gdb run
 # ======================================================================
 #								All Target
 all: build
@@ -63,6 +63,7 @@ help:
 	@echo "  gdb           - Build and run with gdb"
 	@echo "  run           - Build and run the emulator"
 	@echo "  clean         - Remove build artifacts"
+	@echo "  cleanall      - Remove All $(OBJ_DIR) Folder"
 	@echo "  install       - Install the emulator to $(INSTALL_DIR)"
 	@echo "  uninstall     - Uninstall the emulator from $(INSTALL_DIR)"
 # ======================================================================
