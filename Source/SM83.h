@@ -36,6 +36,7 @@ private:
     void executeInstruction(void);
     void executePrefixedInstruction(void);
 
+    void handleInterrupts(void);
     /*
      * Private functions
      * @note Fetch the next opcode from memory.

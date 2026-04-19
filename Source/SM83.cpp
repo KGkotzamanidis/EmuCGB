@@ -67,23 +67,101 @@ SM83::SM83(MMU &mmu) : mmu(&mmu) {
 }
 
 int SM83::step() {
-    if (Registers.isHalted) {
-        return 4; // CPU is stalled but the clock still ticks
+    // 1. Get Interrupt Status
+    uint8_t ie = mmu->readByte(0xFFFF);
+    uint8_t if_flag = mmu->readByte(0xFF0F);
+    uint8_t pending = ie & if_flag & 0x1F;
+
+    // 2. Wake Up Logic
+    // If ANY interrupt is pending, the CPU MUST wake up from HALT
+    // regardless of the IME state.
+    if (pending != 0) {
+        Registers.isHalted = false;
     }
 
-    executeInstruction();
+    // 3. Interrupt Handler (The Jump)
+    // We only jump to the vector (0x40, etc.) if IME is globally enabled.
+    if (Registers.IME && pending != 0) {
+        handleInterrupts(); // This sets cycleCount to 20
+        return cycleCount;
+    }
 
-    // EI enables interrupts one instruction later, not immediately
+    // 4. EI Delay Logic
+    // IME becomes true only AFTER the instruction following EI executes.
     if (Registers.IME_pending) {
         Registers.IME = true;
         Registers.IME_pending = false;
     }
 
+    // 5. Halt Idle
+    if (Registers.isHalted) {
+        return 4; // Consume 1 M-Cycle while waiting
+    }
+
+    executeInstruction();
+
     return cycleCount;
 }
 
+void SM83::handleInterrupts(void) {
+    uint8_t ie = mmu->readByte(0xFFFF);
+    uint8_t if_flag = mmu->readByte(0xFF0F);
+
+    uint8_t pending = ie & if_flag;
+
+    if (pending == 0)
+        return;
+
+    uint16_t targetVector = 0;
+    int bitToClear = -1;
+
+    if (pending & 0x01) { // V-Blank
+        targetVector = 0x40;
+        bitToClear = 0;
+    } else if (pending & 0x02) { // LCD STAT
+        targetVector = 0x48;
+        bitToClear = 1;
+    } else if (pending & 0x04) { // Timer
+        targetVector = 0x50;
+        bitToClear = 2;
+    } else if (pending & 0x08) { // Serial
+        targetVector = 0x58;
+        bitToClear = 3;
+    } else if (pending & 0x10) { // Joypad
+        targetVector = 0x60;
+        bitToClear = 4;
+    }
+
+    if (bitToClear != -1) {
+        // --- START INTERRUPT SERVICE ---
+
+        // A. Disable IME immediately (no more interrupts while servicing)
+        Registers.IME = false;
+        Registers.isHalted = false; // Interrupts wake the CPU from HALT
+
+        // B. Clear the IF bit we are about to handle
+        if_flag &= ~(1 << bitToClear);
+        mmu->writeByte(0xFF0F, if_flag);
+
+        // C. The Hardware CALL: Push PC and Jump to vector
+        // This process takes 20 clocks (5 M-cycles)
+        PUSH_nn(Registers.PC);
+        Registers.PC = targetVector;
+
+        cycleCount += 20;
+    }
+}
 uint8_t SM83::n8() {
-    return mmu->readByte(Registers.PC++);
+    // return mmu->readByte(Registers.PC++);
+    uint8_t data = mmu->readByte(Registers.PC);
+
+    if (Registers.haltBug) {
+        Registers.haltBug = false;
+    } else {
+        Registers.PC++;
+    }
+
+    return data;
 }
 uint16_t SM83::n16() {
     uint8_t LSB = mmu->readByte(Registers.PC++);
@@ -2181,6 +2259,11 @@ void SM83::PUSH_nn(uint16_t src) {
 
 void SM83::POP_nn(uint16_t &dst) {
     dst = mmu->readWord(Registers.SP);
+
+    if (&dst == &Registers.AF) {
+        Registers.F &= 0xF0;
+    }
+
     Registers.SP += 2;
 }
 #pragma endregion
@@ -2514,12 +2597,23 @@ void SM83::SCF() {
 void SM83::NOP() {}
 
 void SM83::HALT() {
-    Registers.isHalted = true;
-    bool interruptEnabled = Registers.IME;
-    bool interruptPending = (mmu->readByte(IFaddress) & mmu->readByte(IEaddress)) != 0;
+    uint8_t ie = mmu->readByte(0xFFFF);
+    uint8_t if_flag = mmu->readByte(0xFF0F);
+    bool interruptPending = (ie & if_flag & 0x1F) != 0;
 
-    if (!interruptEnabled && interruptPending) {
-        Registers.isHalted = false;
+    if (Registers.IME) {
+        // Normal behavior: CPU stops until an interrupt occurs
+        Registers.isHalted = true;
+    } else {
+        if (interruptPending) {
+            // THE HALT BUG: IME is off, but an interrupt is already waiting.
+            // The CPU does not halt, but it fails to increment PC for the next opcode.
+            Registers.isHalted = false;
+            Registers.haltBug = true;
+        } else {
+            // CPU stops until an IF flag is set, but won't jump to the handler
+            Registers.isHalted = true;
+        }
     }
 }
 
