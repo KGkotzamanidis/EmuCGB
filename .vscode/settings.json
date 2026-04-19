@@ -85,5 +85,14 @@
             "binaryArgs": []
         }
     ],
-    "makefile.buildLog": "/home/konstantinos/Documents/VScode/EmuCGB/Logs"
+    "makefile.buildLog": "/home/konstantinos/Documents/VScode/EmuCGB/Logs",
+    "formatFiles.excludedFolders": [
+        "dependencies",
+        ".git",
+        ".vscode",
+        "Docs",
+        "Logs",
+        "Resource"
+    ],
+    "formatFiles.excludePattern": ""
 }
