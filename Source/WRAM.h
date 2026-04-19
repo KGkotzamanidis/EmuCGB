@@ -30,7 +30,7 @@ public:
     void sendingData(uint16_t address, uint8_t data);
 
 private:
-    std::vector<uint8_t>RAM = std::vector<uint8_t>(0x8000,0);
+    std::vector<uint8_t> RAM = std::vector<uint8_t>(0x8000, 0);
     uint8_t WRAMBank = 1;
 };
 #endif

@@ -359,48 +359,48 @@ private:
      */
 private:
     /*
-    * RLCA
-    */
+     * RLCA
+     */
     void RLCA(void);
     /*
-    * RLA
-    */
+     * RLA
+     */
     void RLA(void);
     /*
-    * RRCA
-    */
+     * RRCA
+     */
     void RRCA(void);
     /*
-    * RRA
-    */
+     * RRA
+     */
     void RRA(void);
     /*
-    * RLC n
-    */
+     * RLC n
+     */
     void RLC_n(uint8_t &n);
     /*
-    * RL n
-    */
+     * RL n
+     */
     void RL_n(uint8_t &n);
     /*
-    * RRC n
-    */
+     * RRC n
+     */
     void RRC_n(uint8_t &n);
     /*
-    * RR n
-    */
+     * RR n
+     */
     void RR_n(uint8_t &n);
     /*
-    * SLA n
-    */
+     * SLA n
+     */
     void SLA_n(uint8_t &n);
     /*
-    * SRA n
-    */
+     * SRA n
+     */
     void SRA_n(uint8_t &n);
     /*
-    * SRL n
-    */
+     * SRL n
+     */
     void SRL_n(uint8_t &n);
 
     /*
@@ -408,16 +408,16 @@ private:
      */
 private:
     /*
-    * BIT n
-    */
+     * BIT n
+     */
     void BIT_b_r(int possition, uint8_t r);
     /*
-    * SET n
-    */
+     * SET n
+     */
     void SET_b_r(int possition, uint8_t &r);
     /*
-    * RES n
-    */
+     * RES n
+     */
     void RES_b_r(int possition, uint8_t &r);
 
     /*
@@ -425,24 +425,24 @@ private:
      */
 private:
     /*
-    * JP nn
-    */
+     * JP nn
+     */
     void JP_nn(uint16_t nn);
     /*
-    * JP nn
-    */
+     * JP nn
+     */
     int JP_cc_nn(int cc);
     /*
-    * JP
-    */
+     * JP
+     */
     void JP_HL(void);
     /*
-    * JR
-    */
+     * JR
+     */
     void JR_n(void);
     /*
-    * JR nn
-    */
+     * JR nn
+     */
     int JR_cc_n(int cc);
 
     /*
@@ -450,12 +450,12 @@ private:
      */
 private:
     /*
-    * CALL 
-    */
+     * CALL
+     */
     void CALL_nn(void);
     /*
-    * CALL nn
-    */
+     * CALL nn
+     */
     int CALL_cc_nn(int cc);
 
     /*
@@ -463,8 +463,8 @@ private:
      */
 private:
     /*
-    * RST n
-    */
+     * RST n
+     */
     void RST_n(uint8_t n);
 
     /*
@@ -472,16 +472,16 @@ private:
      */
 private:
     /*
-    * RET
-    */
+     * RET
+     */
     void RET(void);
     /*
-    * RET nn
-    */
+     * RET nn
+     */
     int RET_cc(int cc);
     /*
-    * RETI
-    */
+     * RETI
+     */
     void RETI(void);
 };
 #endif

@@ -21,11 +21,12 @@ ROM::ROM() {
 }
 
 uint8_t ROM::receivingData(uint16_t address) {
-
+    if (address < ROMData.size())
+        return ROMData[address];
+    return 0xFF;
 }
 
 void ROM::sendingData(uint16_t address, uint8_t data) {
-
 }
 
 void ROM::loadROM(std::string ROMFilePath) {

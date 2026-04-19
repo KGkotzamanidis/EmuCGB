@@ -24,8 +24,7 @@ Timers::Timers(Interrupts &interrupts) : interrupts(&interrupts) {
 uint8_t Timers::receivingData(uint16_t address) {
     uint8_t data = 0x00;
 
-    switch (address)
-    {
+    switch (address) {
     case DIVaddress:
         data = DIV;
         break;
@@ -44,8 +43,7 @@ uint8_t Timers::receivingData(uint16_t address) {
 }
 
 void Timers::sendingData(uint16_t address, uint8_t data) {
-    switch (address)
-    {
+    switch (address) {
     case DIVaddress:
         DIV = 0;
         break;
@@ -61,40 +59,33 @@ void Timers::sendingData(uint16_t address, uint8_t data) {
     }
 }
 
-void Timers::updateTimers(int lastCycleCount)
-{
+void Timers::updateTimers(int lastCycleCount) {
     DIVCycleCount += lastCycleCount;
-    if (DIVCycleCount >= 256)
-    {
+    if (DIVCycleCount >= 256) {
         DIVCycleCount -= 256;
         DIV++;
     }
 
-    if ((TAC & 0x4) != 0)
-    {
+    if ((TAC & 0x4) != 0) {
         TIMACycleCount += lastCycleCount;
         int clockRateNum = clockRate(TAC & 0x3);
 
-        while (TIMACycleCount >= clockRateNum)
-        {
+        while (TIMACycleCount >= clockRateNum) {
             TIMACycleCount -= clockRateNum;
             TIMA++;
 
-            if (TIMA == 0)
-            {
+            if (TIMA == 0) {
                 TIMA = TMA;
-                interrupts->Registers.IF = interrupts->Registers.IF | (0xE0 | timerOverflow);
+                interrupts->Registers.IF |= timerOverflow;
             }
         }
     }
 }
 
-int Timers::clockRate(int code)
-{
+int Timers::clockRate(int code) {
     int data = 0;
 
-    switch (code)
-    {
+    switch (code) {
     case 0:
         data = 1024;
         break;

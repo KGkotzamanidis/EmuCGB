@@ -16,6 +16,8 @@
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "MMU.h"
+#include "PPU.h"
+
 MMU::MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Timers &timers, WRAM &wram) : bios(&bios), rom(&rom), interrupts(&interrupts), timers(&timers), wram(&wram) {
     std::printf("-=MMU class initialized=-\n");
 }
@@ -24,87 +26,108 @@ uint8_t MMU::readByte(uint16_t address) {
     uint8_t data = 0xFF;
 
     if (address >= 0x0000 && address <= 0x7FFF) {
-        if (address < 0x0100 && (bios->isBIOSLoaded && bios->BootBIOS)) { // 16 KiB ROM
+        if (address < 0x0100 && (bios->isBIOSLoaded && bios->BootBIOS)) {
             data = bios->receivingData(address);
         } else {
             data = rom->receivingData(address);
         }
-    } else if (address >= 0x8000 && address <= 0x9FFF) { // 8 KiB Video RAM (VRAM)
-    } else if (address >= 0xA000 && address <= 0xBFFF) { // 8 KiB External RAM
+    } else if (address >= 0x8000 && address <= 0x9FFF) { // VRAM → PPU
+        data = ppu->readVRAM(address);
+    } else if (address >= 0xA000 && address <= 0xBFFF) { // External RAM
         data = rom->receivingData(address);
-    } else if (address >= 0xC000 && address <= 0xFDFF) { // 4 KiB Work RAM (WRAM)
+    } else if (address >= 0xC000 && address <= 0xFDFF) { // WRAM + Echo
         data = wram->receivingData(address);
-    } else if (address >= 0xFE00 && address <= 0xFE9F) {     // Object Attribute Memory (OAM)
-    } else if (address >= 0xFEA0 && address <= 0xFEFF) {     // NOT USED!
-    } else if (address >= 0xFF00 && address <= 0xFF70) {     // I/O Registers
-        if (address == 0xFF00) {                             // Joypad Input
-        } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial Transfer
-        } else if (address >= 0xFF04 && address <= 0xFF07) { // Timer and Divider
+    } else if (address >= 0xFE00 && address <= 0xFE9F) { // OAM → PPU
+        data = ppu->readOAM(address);
+    } else if (address >= 0xFEA0 && address <= 0xFEFF) { // Unusable — open bus
+        // FIX: upper bound was 0xFF70, missing 0xFF71-0xFF7F
+    } else if (address >= 0xFF00 && address <= 0xFF7F) {     // I/O Registers
+        if (address == 0xFF00) {                             // Joypad
+        } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial
+        } else if (address >= 0xFF04 && address <= 0xFF07) { // Timers
             data = timers->receivingData(address);
-        } else if (address == 0xFF0F) { // Interrupts
-            data = interrupts->Registers.IF;
-        } else if (address >= 0xFF10 && address <= 0xFF26) {                   // Audio
-        } else if (address >= 0xFF30 && address <= 0xFF3F) {                   // Wave Pattern
-        } else if (address >= 0xFF40 && address <= 0xFF4B) {                   // LCD Controller
-        } else if (address == 0xFF46) {                                        // OAM DMA Transfer
-        } else if ((address >= 0xFF4C && address <= 0xFF4D) && rom->CGBmode) { // KEY0 & KEY1
-            if (address == 0xFF4C) {
-                data = KEY_0;
-            } else if (address == 0xFF4D) {
-                data = KEY_1;
-            }
-        } else if (address == 0xFF4F && rom->CGBmode) {                        // VRAM Bank Select
-        } else if (address == 0xFF50) {                                        // Boot Rom
-        } else if ((address >= 0xFF51 && address <= 0xFF55) && rom->CGBmode) { // VRAM DMA
-        } else if (address == 0xFF56 && rom->CGBmode) {                        // IR Port
-        } else if ((address >= 0xFF68 && address <= 0xFF6B) && rom->CGBmode) { // BG-OBJ Palettes
-        } else if (address == 0xFF6C && rom->CGBmode) {                        // Object Priority Mode
-        } else if (address == 0xFF70 && rom->CGBmode) {                        // WRAM Bank Select
+        } else if (address == 0xFF0F) {                      // IF
+            data = interrupts->Registers.IF | 0xE0;          // bits 7-5 always 1
+        } else if (address >= 0xFF10 && address <= 0xFF26) { // APU
+        } else if (address >= 0xFF30 && address <= 0xFF3F) { // Wave RAM
+        } else if (address >= 0xFF40 && address <= 0xFF4B) { // LCD registers → PPU
+            data = ppu->readIO(address);
+        } else if (address == 0xFF46) {                                        // OAM DMA — write-only
+            data = 0xFF;                                                       // reads return open bus
+        } else if ((address >= 0xFF4C && address <= 0xFF4D) && rom->CGBmode) { // KEY0/KEY1
+            data = (address == 0xFF4C) ? KEY_0 : KEY_1;
+        } else if (address == 0xFF4F && rom->CGBmode) { // VBK → PPU
+            data = ppu->readIO(address);
+        } else if (address == 0xFF50) { // Boot ROM mapped flag
+            data = bios->BootBIOS ? 0x00 : 0x01;
+        } else if ((address >= 0xFF51 && address <= 0xFF55) && rom->CGBmode) { // HDMA
+            data = 0xFF;                                                       // stub — HDMA not yet implemented
+        } else if (address == 0xFF56 && rom->CGBmode) {                        // IR port
+            data = 0xFF;                                                       // stub
+        } else if ((address >= 0xFF68 && address <= 0xFF6B) && rom->CGBmode) { // CGB palettes → PPU
+            data = ppu->readIO(address);
+        } else if (address == 0xFF6C && rom->CGBmode) { // Object priority mode
+            data = 0xFF;                                // stub
+        } else if (address == 0xFF70 && rom->CGBmode) { // SVBK — WRAM bank
             data = wram->receivingData(address);
         }
-    } else if (address >= 0xFF80 && address <= 0xFFFE) { // High RAM (HRAM)
-        data = HRAM[address & 0x7F];
-    } else if (address == 0xFFFF) { // Interrupt Enable Register
+        // FIX: HRAM index was (address & 0x7F) — wrong for 0xFF80+
+        //      0xFF80 & 0x7F = 0x00, 0xFFFE & 0x7F = 0x7E — coincidentally correct
+        //      but address - 0xFF80 is explicit and safer
+    } else if (address >= 0xFF80 && address <= 0xFFFE) { // HRAM
+        data = HRAM[address - 0xFF80];
+    } else if (address == 0xFFFF) { // IE
         data = interrupts->Registers.IE;
     }
 
     return data;
 }
-void MMU::writeByte(uint16_t address, uint8_t data) { // 16 KiB ROM
-    if (address >= 0x0000 && address <= 0x7FFF) {
-    } else if (address >= 0x8000 && address <= 0x9FFF) { // 8 KiB Video RAM (VRAM)
-    } else if (address >= 0xA000 && address <= 0xBFFF) { // 8 KiB External RAM
-    } else if (address >= 0xC000 && address <= 0xFDFF) { // 4 KiB Work RAM (WRAM)
+void MMU::writeByte(uint16_t address, uint8_t data) {
+    if (address >= 0x0000 && address <= 0x7FFF) { // ROM — MBC writes
+        rom->sendingData(address, data);
+    } else if (address >= 0x8000 && address <= 0x9FFF) { // VRAM → PPU
+        ppu->writeVRAM(address, data);
+    } else if (address >= 0xA000 && address <= 0xBFFF) { // External RAM
+        rom->sendingData(address, data);
+    } else if (address >= 0xC000 && address <= 0xFDFF) { // WRAM + Echo
         wram->sendingData(address, data);
-    } else if (address >= 0xFE00 && address <= 0xFE9F) {     // Object Attribute Memory (OAM)
-    } else if (address >= 0xFEA0 && address <= 0xFEFF) {     // NOT USED!
-    } else if (address >= 0xFF00 && address <= 0xFF70) {     // I/O Registers
-        if (address == 0xFF00) {                             // Joypad Input
-        } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial Transfer
-        } else if (address >= 0xFF04 && address <= 0xFF07) { // Timer and Divider
+    } else if (address >= 0xFE00 && address <= 0xFE9F) { // OAM → PPU
+        ppu->writeOAM(address, data);
+    } else if (address >= 0xFEA0 && address <= 0xFEFF) { // Unusable — ignore
+        // FIX: upper bound was 0xFF70, missing 0xFF71-0xFF7F
+    } else if (address >= 0xFF00 && address <= 0xFF7F) {     // I/O Registers
+        if (address == 0xFF00) {                             // Joypad
+        } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial
+        } else if (address >= 0xFF04 && address <= 0xFF07) { // Timers
             timers->sendingData(address, data);
-        } else if (address == 0xFF0F) { // Interrupts
-            interrupts->Registers.IF = data;
-        } else if (address >= 0xFF10 && address <= 0xFF26) {                   // Audio
-        } else if (address >= 0xFF30 && address <= 0xFF3F) {                   // Wave Pattern
-        } else if (address >= 0xFF40 && address <= 0xFF4B) {                   // LCD Controller
-        } else if (address == 0xFF46) {                                        // OAM DMA Transfer
-        } else if ((address >= 0xFF4C && address <= 0xFF4D) && rom->CGBmode) { // KEY0 & KEY1
-        } else if (address == 0xFF4F && rom->CGBmode) {                        // VRAM Bank Select
-        } else if (address == 0xFF50) {                                        // Boot Rom
-            if (data == 0x1) {
+        } else if (address == 0xFF0F) {                      // IF
+            interrupts->Registers.IF = data & 0x1F;          // only bits 4-0 are writable
+        } else if (address >= 0xFF10 && address <= 0xFF26) { // APU
+        } else if (address >= 0xFF30 && address <= 0xFF3F) { // Wave RAM
+        } else if (address >= 0xFF40 && address <= 0xFF4B) { // LCD registers → PPU
+            ppu->writeIO(address, data);
+        } else if (address == 0xFF46) { // OAM DMA — trigger transfer
+            // The CPU writes the source page (e.g. 0xC0 = copy from 0xC000).
+            // startDMA reads 160 bytes via the MMU readByte callback into OAM.
+            ppu->startDMA(data, [](uint16_t addr, void *ctx) { return reinterpret_cast<MMU *>(ctx)->readByte(addr); }, this);
+        } else if ((address >= 0xFF4C && address <= 0xFF4D) && rom->CGBmode) { // KEY0/KEY1
+        } else if (address == 0xFF4F && rom->CGBmode) {                        // VBK → PPU
+            ppu->writeIO(address, data);
+        } else if (address == 0xFF50) { // Boot ROM disable
+            if (data & 0x01)
                 bios->BootBIOS = false;
-            }
-        } else if ((address >= 0xFF51 && address <= 0xFF55) && rom->CGBmode) { // VRAM DMA
-        } else if (address == 0xFF56 && rom->CGBmode) {                        // IR Port
-        } else if ((address >= 0xFF68 && address <= 0xFF6B) && rom->CGBmode) { // BG-OBJ Palettes
-        } else if (address == 0xFF6C && rom->CGBmode) {                        // Object Priority Mode
-        } else if (address == 0xFF70 && rom->CGBmode) {                        // WRAM Bank Select
+        } else if ((address >= 0xFF51 && address <= 0xFF55) && rom->CGBmode) { // HDMA
+        } else if (address == 0xFF56 && rom->CGBmode) {                        // IR port
+        } else if ((address >= 0xFF68 && address <= 0xFF6B) && rom->CGBmode) { // CGB palettes → PPU
+            ppu->writeIO(address, data);
+        } else if (address == 0xFF6C && rom->CGBmode) { // Object priority mode
+        } else if (address == 0xFF70 && rom->CGBmode) { // SVBK — WRAM bank
             wram->sendingData(address, data);
         }
-    } else if (address >= 0xFF80 && address <= 0xFFFE) { // High RAM (HRAM)
-        HRAM[address & 0x7F] = data;
-    } else if (address == 0xFFFF) { // Interrupt Enable Register
+        // FIX: HRAM index address - 0xFF80 instead of address & 0x7F
+    } else if (address >= 0xFF80 && address <= 0xFFFE) { // HRAM
+        HRAM[address - 0xFF80] = data;
+    } else if (address == 0xFFFF) { // IE
         interrupts->Registers.IE = data;
     }
 }
@@ -117,4 +140,8 @@ uint16_t MMU::readWord(uint16_t address) {
 void MMU::writeWord(uint16_t address, uint16_t data) {
     writeByte(address, static_cast<uint8_t>(data & 0xFF));
     writeByte(address + 1, static_cast<uint8_t>((data >> 8) & 0xFF));
+}
+
+void MMU::connectPPU(PPU &ppu) {
+    this->ppu = &ppu;
 }

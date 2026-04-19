@@ -19,14 +19,15 @@
 #define _MMU_H_
 
 #include "BIOS.h"
-#include "ROM.h"
 #include "EmulationUtils.h"
+#include "ROM.h"
 #include "Timers.h"
 #include "WRAM.h"
 
+class PPU;
 class MMU {
 public:
-    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts,Timers &timers, WRAM &wram);
+    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Timers &timers, WRAM &wram);
     /*
      * 8Bit read/write functions
      * @param address The address to read from or write to.
@@ -47,14 +48,18 @@ public:
     uint16_t readWord(uint16_t address);
     void writeWord(uint16_t address, uint16_t data);
 
+    void connectPPU(PPU &ppu);
+
 private:
     BIOS *bios = nullptr;
     ROM *rom = nullptr;
     Interrupts *interrupts = nullptr;
     Timers *timers = nullptr;
     WRAM *wram = nullptr;
+    PPU *ppu = nullptr;
 
-    std::vector<uint8_t> HRAM = std::vector<uint8_t>(0x7E,0);
-    uint8_t KEY_0, KEY_1;
+    std::vector<uint8_t> HRAM = std::vector<uint8_t>(0x7F, 0);
+    uint8_t KEY_0 = 0x04;
+    uint8_t KEY_1 = 0x7E;
 };
 #endif
