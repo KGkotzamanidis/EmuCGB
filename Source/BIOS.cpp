@@ -34,6 +34,7 @@ void BIOS::loadBIOS(std::string BIOSFilePath) {
         BIOSReader.read(reinterpret_cast<char *>(BIOSData.data()), BIOSSize);
         BIOSReader.close();
         isBIOSLoaded = true;
+        BootBIOS = true;
         BIOSPtr = BIOSData.data();
         std::printf("BIOS file readed successfully\nSize:(%zu KiB) @ Address: 0x%p\n", BIOSSize, BIOSPtr);
     } else {
@@ -46,6 +47,6 @@ void BIOS::loadBIOS(std::string BIOSFilePath) {
     }
 }
 
-uint8_t BIOS::receivingData(uint16_t address){
+uint8_t BIOS::receivingData(uint16_t address) {
     return BIOSData[address];
 }
