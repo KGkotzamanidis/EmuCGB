@@ -26,6 +26,7 @@ INCLUDES	= -I$(INSTALL_DIR)/include
 # 							Directories
 SRC_DIR		= Source
 DEP_DIR		= Dependencies
+OBJ_DIR		= Object
 INSTALL_DIR	= /usr/local
 # ======================================================================
 # 					Build Mode Login (Debug/Release)
@@ -98,8 +99,11 @@ run: build
 # ======================================================================
 # 								Clean Target
 clean:
-	@echo "Cleaning build artifacts..."
-	@rm -rf Object
+	@echo "Cleaning build artifacts -> $(OBJ_DIR)"
+	@rm -rf $(OBJ_DIR)
+cleanall:
+	@echo "Cleaning all Object Folder"
+	@rm -rfv Object
 # ======================================================================
 # 								Download Target
 # This target is a placeholder for downloading dependencies like SDL3.
