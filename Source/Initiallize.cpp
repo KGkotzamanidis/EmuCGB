@@ -1,6 +1,6 @@
 /*
  *An Gameboy and GameboyColor emulation with project name EmuCGB
- *Copyright (C) <Sat Apr 12 2025>  <KGkotzamanidis>
+ *Copyright (C) <Tue Apr 08 2025>  <KGkotzamanidis>
  *
  *This program is free software: you can redistribute it and/or modify
  *it under the terms of the GNU General Public License as published by
@@ -15,86 +15,81 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
-#include <SDL3_ttf/SDL_ttf.h>
-
-#include <cmath>
-#include <cstdint>
-#include <iostream>
 
 #include "BIOS.h"
 #include "MMU.h"
+#include "PPU.h"
 #include "ROM.h"
+#include "SM83.h"
+#include "Timers.h"
+#include "WRAM.h"
 
-float lerp(float a, float b, float t) {
-    return a + (b - a) * t;
-}
+#include <SDL3/SDL.h>
 
-void getRainbowColor(float time, uint8_t &r, uint8_t &g, uint8_t &b) {
-    r = static_cast<uint8_t>((std::sin(time + 0.0f) * 0.5f + 0.5f) * 255);
-    g = static_cast<uint8_t>((std::sin(time + 2.0f) * 0.5f + 0.5f) * 255);
-    b = static_cast<uint8_t>((std::sin(time + 4.0f) * 0.5f + 0.5f) * 255);
-}
+#define F_ROM "Resource/tetris.gb"
+#define F_BIOS "Resource/dmg0.bin"
+#define F_ICON "Resource/GkotzamBoy.png"
 
 int main(int argc, char *argv[]) {
-    SDL_Window *window = nullptr;
-    SDL_Renderer *renderer = nullptr;
-    SDL_Surface*icon = nullptr;
 
-    SDL_Init(SDL_INIT_VIDEO);
-    window = SDL_CreateWindow("EmuCGB", 500, 500, SDL_WINDOW_VULKAN);
-    renderer = SDL_CreateRenderer(window, NULL);
-    icon = IMG_Load("../Resource/GkotzamBoy.png");
-
-    SDL_SetWindowIcon(window,icon);
-
-    float time = 0.0f;
-
-    SDL_Event event;
-    bool application_loop = true;
-    bool application_test = true;
-
+    // --- Load BIOS and ROM ---------------------------------------------------
     BIOS bios;
+    bios.loadBIOS(F_BIOS);
+
     ROM rom;
-    MMU mmu(bios, rom);
+    rom.loadROM(F_ROM);
 
-    while (application_loop) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                application_loop = false;
-            }
-            if (event.type == SDL_EVENT_KEY_DOWN) {
-                application_test = false;
-            }
-        }
+    // --- Construct all subsystems -------------------------------------------
+    Interrupts interrupts;
+    Timers timers(interrupts);
+    WRAM wram;
 
-        if (application_test) {
-            time += 0.030;
-            uint8_t r, g, b;
-            getRainbowColor(time, r, g, b);
+    // PPU must be constructed BEFORE MMU so connectPPU() can wire it in.
+    // cgbMode comes from the cartridge header parsed by rom.loadROM().
+    PPU ppu(interrupts, rom.CGBmode);
 
-            SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-            SDL_RenderClear(renderer);
-            SDL_RenderPresent(renderer);
-            SDL_Delay(16);
-        } else {
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-            SDL_RenderClear(renderer);
-            SDL_RenderPresent(renderer);
+    MMU mmu(bios, rom, interrupts, timers, wram);
+    SM83 sm83(mmu);
 
-            bios.loadBIOS("../Resource/dmg0.bin");
-            rom.loadROM("../Resource/cpu_test.gb");
-            rom.info();
-        }
+    // Wire PPU into MMU — MUST happen before the first sm83.step(),
+    // otherwise any VRAM/OAM/LCD access will hit a nullptr and crash.
+    mmu.connectPPU(ppu);
 
-        while (!application_test) {
-        }
+    std::printf("BIOS loaded: %s, BootBIOS: %s\n",
+    bios.isBIOSLoaded ? "yes" : "no",
+    bios.BootBIOS     ? "yes" : "no");
+    
+    // --- Open the SDL3 window -----------------------------------------------
+    if (!ppu.initSDL("EmuCGB", 3, F_ICON)) {
+        std::printf("Fatal: could not open SDL3 window.\n");
+        return 1;
     }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    std::printf("Program terminate\n");
+    // --- Emulation loop ------------------------------------------------------
+    bool running = true;
+    SDL_Event event;
+
+    while (running) {
+
+        // Poll SDL events so the window responds and can be closed
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT)
+                running = false;
+            if (event.type == SDL_EVENT_KEY_DOWN &&
+                event.key.scancode == SDL_SCANCODE_ESCAPE)
+                running = false;
+        }
+
+        // Step CPU and advance subsystems by the same number of T-cycles
+        int cycles = sm83.step();
+        timers.updateTimers(cycles);
+
+        // Step PPU — returns true when VBlank starts (new frame is ready)
+        if (ppu.step(cycles))
+            ppu.present(); // upload framebuffer to screen
+    }
+
+    // --- Shutdown ------------------------------------------------------------
+    ppu.destroySDL();
     return 0;
 }
