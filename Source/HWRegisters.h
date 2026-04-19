@@ -78,6 +78,42 @@ struct CPURegisters {
 };
 
 struct PPURegisters {
+    uint8_t LCDC = 0x91;
+    uint8_t STAT = 0x00;
+    uint8_t SCY = 0x00;
+    uint8_t SCX = 0x00;
+    uint8_t LY = 0x00;
+    uint8_t LYC = 0x00;
+    uint8_t BGP = 0xFC;
+    uint8_t OBP0 = 0xFF;
+    uint8_t OBP1 = 0xFF;
+    uint8_t WY = 0x00;
+    uint8_t WX = 0x00;
+    uint8_t VBK = 0x00;
+    uint8_t BGPI = 0x00;
+    uint8_t OBPI = 0x00;
+    uint8_t BGPD[64] = {};
+    uint8_t OBPD[64] = {};
+
+    bool lcdEnabled() const { return (LCDC >> 7) & 1; }
+    bool winMapHigh() const { return (LCDC >> 6) & 1; }
+    bool winEnabled() const { return (LCDC >> 5) & 1; }
+    bool tilesSigned() const { return !((LCDC >> 4) & 1); }
+    bool bgMapHigh() const { return (LCDC >> 3) & 1; }
+    bool spriteTall() const { return (LCDC >> 2) & 1; }
+    bool spritesEnabled() const { return (LCDC >> 1) & 1; }
+    bool bgWinEnabled() const { return (LCDC >> 0) & 1; }
+
+    uint8_t getMode() const { return STAT & 0x03; }
+    bool isCoincidence() const { return (STAT >> 2) & 1; }
+
+    void setMode(uint8_t mode) { STAT = (STAT & 0xFC) | (mode & 0x03); }
+    void setCoincidence(bool v) {
+        if (v)
+            STAT |= 0x04;
+        else
+            STAT &= ~0x04;
+    }
 };
 
 struct INTERRUPTRegisters {
