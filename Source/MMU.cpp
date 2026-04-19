@@ -98,6 +98,13 @@ void MMU::writeByte(uint16_t address, uint8_t data) {
     } else if (address >= 0xFF00 && address <= 0xFF7F) {     // I/O Registers
         if (address == 0xFF00) {                             // Joypad
         } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial
+            if ((data >= 32 && data <= 126) || data == '\n' || data == '\r') {
+                std::printf("%c", data);
+            } else {
+                // Optional: Print hex for debugging games
+                std::printf("[0x%02X]", data);
+            }
+            std::fflush(stdout);
         } else if (address >= 0xFF04 && address <= 0xFF07) { // Timers
             timers->sendingData(address, data);
         } else if (address == 0xFF0F) {                      // IF
