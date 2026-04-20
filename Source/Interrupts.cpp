@@ -15,8 +15,11 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "Interrupts.h"
+#include "Interrupts.hpp"
 
 Interrupts::Interrupts() {
+
+    Registers.IE = 0x00;
+    Registers.IF = 0x00;
     std::printf("-=Interrupts class initialized=-\n");
 }

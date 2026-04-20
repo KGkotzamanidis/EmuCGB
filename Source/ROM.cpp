@@ -15,7 +15,7 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "ROM.h"
+#include "ROM.hpp"
 ROM::ROM() {
     std::printf("-=ROM class initialized=-\n");
 }
