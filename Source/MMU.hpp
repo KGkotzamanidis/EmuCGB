@@ -18,16 +18,17 @@
 #ifndef _MMU_H_
 #define _MMU_H_
 
-#include "BIOS.h"
-#include "EmulationUtils.h"
-#include "ROM.h"
-#include "Timers.h"
-#include "WRAM.h"
+#include "BIOS.hpp"
+#include "EmulationUtils.hpp"
+#include "Controller.hpp"
+#include "ROM.hpp"
+#include "Timers.hpp"
+#include "WRAM.hpp"
 
 class PPU;
 class MMU {
 public:
-    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Timers &timers, WRAM &wram);
+    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Controller &controller, Timers &timers, WRAM &wram);
     /*
      * 8Bit read/write functions
      * @param address The address to read from or write to.
@@ -54,6 +55,7 @@ private:
     BIOS *bios = nullptr;
     ROM *rom = nullptr;
     Interrupts *interrupts = nullptr;
+    Controller *controller = nullptr;
     Timers *timers = nullptr;
     WRAM *wram = nullptr;
     PPU *ppu = nullptr;

@@ -25,9 +25,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-#include "EmulationUtils.h"
-#include "HWRegisters.h"
-#include "Interrupts.h"
+#include "EmulationUtils.hpp"
+#include "HWRegisters.hpp"
+#include "Interrupts.hpp"
 
 // =============================================================================
 // Screen geometry

@@ -18,8 +18,8 @@
 #ifndef _SM83_H_
 #define _SM83_H_
 
-#include "HWRegisters.h"
-#include "MMU.h"
+#include "HWRegisters.hpp"
+#include "MMU.hpp"
 
 class SM83 {
 public:
