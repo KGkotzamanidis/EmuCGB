@@ -15,22 +15,23 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-#include "BIOS.h"
-#include "MMU.h"
-#include "PPU.h"
-#include "ROM.h"
-#include "SM83.h"
-#include "Timers.h"
-#include "WRAM.h"
-
 #include <SDL3/SDL.h>
+
+#include "BIOS.hpp"
+#include "EmulationUtils.hpp"
+#include "Joypad.hpp"
+#include "MMU.hpp"
+#include "PPU.hpp"
+#include "ROM.hpp"
+#include "SM83.hpp"
+#include "Timers.hpp"
+#include "WRAM.hpp"
 
 #define F_ROM "Resource/tetris.gb"
 #define F_BIOS "Resource/dmg0.bin"
 #define F_ICON "Resource/GkotzamBoy.png"
 
-int main(int argc, char *argv[]) {
+int main() {
 
     // --- Load BIOS and ROM ---------------------------------------------------
     BIOS bios;
@@ -43,12 +44,13 @@ int main(int argc, char *argv[]) {
     Interrupts interrupts;
     Timers timers(interrupts);
     WRAM wram;
+    Joypad joypad;
 
     // PPU must be constructed BEFORE MMU so connectPPU() can wire it in.
     // cgbMode comes from the cartridge header parsed by rom.loadROM().
     PPU ppu(interrupts, rom.CGBmode);
 
-    MMU mmu(bios, rom, interrupts, timers, wram);
+    MMU mmu(bios, rom, interrupts, joypad, timers, wram);
     SM83 sm83(mmu);
 
     // Wire PPU into MMU — MUST happen before the first sm83.step(),
@@ -56,9 +58,9 @@ int main(int argc, char *argv[]) {
     mmu.connectPPU(ppu);
 
     std::printf("BIOS loaded: %s, BootBIOS: %s\n",
-    bios.isBIOSLoaded ? "yes" : "no",
-    bios.BootBIOS     ? "yes" : "no");
-    
+                bios.isBIOSLoaded ? "yes" : "no",
+                bios.BootBIOS ? "yes" : "no");
+
     // --- Open the SDL3 window -----------------------------------------------
     if (!ppu.initSDL("EmuCGB", 3, F_ICON)) {
         std::printf("Fatal: could not open SDL3 window.\n");
@@ -73,11 +75,15 @@ int main(int argc, char *argv[]) {
 
         // Poll SDL events so the window responds and can be closed
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT)
+            if (event.type == SDL_EVENT_QUIT) {
                 running = false;
-            if (event.type == SDL_EVENT_KEY_DOWN &&
-                event.key.scancode == SDL_SCANCODE_ESCAPE)
-                running = false;
+            }
+            joypad.handlerEvent(event);
+        }
+
+        if (joypad.checkInterrupt()) {
+            uint8_t if_flag = mmu.readByte(IFaddress);
+            mmu.writeByte(IFaddress, if_flag | 0x10);
         }
 
         // Step CPU and advance subsystems by the same number of T-cycles
