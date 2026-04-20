@@ -18,12 +18,12 @@
 #ifndef _PPU_H_
 #define _PPU_H_
 
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+
 #include <array>
 #include <cstdint>
 #include <cstring>
-
-#include <SDL3/SDL.h>
-#include <SDL3_image/SDL_image.h>
 
 #include "EmulationUtils.hpp"
 #include "HWRegisters.hpp"
