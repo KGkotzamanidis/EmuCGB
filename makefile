@@ -96,7 +96,7 @@ build: $(TARGET)
 # 								Run Target
 run: build
 	@echo "Running $(TARGET)..."
-	@./$(TARGET)
+	@./$(TARGET) >> Object/Log.txt
 # ======================================================================
 # 								Clean Target
 clean:
