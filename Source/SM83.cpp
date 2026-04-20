@@ -15,7 +15,7 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "SM83.h"
+#include "SM83.hpp"
 
 // clang-format off
 // Cycle counts are the *taken* cycle counts (branch-taken / memory-access path).
@@ -63,6 +63,7 @@ const int CGB_PrefixedInstruction_Cycle[256] ={
 // clang-format on
 
 SM83::SM83(MMU &mmu) : mmu(&mmu) {
+    cycleCount = 0;
     std::printf("-=SM83 class initialized=-\n");
 }
 
@@ -148,7 +149,7 @@ void SM83::handleInterrupts(void) {
         PUSH_nn(Registers.PC);
         Registers.PC = targetVector;
 
-        cycleCount += 20;
+        cycleCount = 20;
     }
 }
 uint8_t SM83::n8() {
