@@ -40,7 +40,7 @@
 
 ### 📋 Prerequisites
 * **Compiler**: C++17 or higher
-* **Build Tool**: [CMake](https://cmake.org/) (v3.10+)
+* **Build Tool**: [Make](https://www.gnu.org/software/make/) (v4.4.1)
 * **Library**: [SDL3](https://www.libsdl.org/)
 
 ### 🔧 Build Instructions
