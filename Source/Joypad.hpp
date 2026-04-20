@@ -15,47 +15,31 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef _CONTROLLER_H_
-#define _CONTROLLER_H_
+#ifndef _JOYPAD_H_
+#define _JOYPAD_H_
+
+#include <SDL3/SDL.h>
 
 #include <cstdint>
+#include <iostream>
 
-class Controller {
+class Joypad {
 public:
-    Controller();
+    Joypad();
 
     void writeIO(uint8_t data);
     uint8_t readIO();
 
-    void handlerInterrupt(void);
-    bool checkInterrupt() {
-        if (requestInterrupt) {
-            requestInterrupt = false;
-            return true;
-        }
-        return false;
-    }
+    bool checkInterrupt();
+    void handlerEvent(const SDL_Event &event);
 
 private:
-    uint8_t controllerRegister = 0x30;
-    uint8_t directionKeys = 0x0F;
-    uint8_t buttonKeys = 0x0F;
-    bool requestInterrupt = false;
+    uint8_t P1_JOYP = 0x30;
+    uint8_t DirectionKeys = 0x0F;
+    uint8_t ButtonKeys = 0x0F;
 
-    void updateState(int bit, bool isDirection, bool preessed) {
-        uint8_t &targetGroup = isDirection ? directionKeys : buttonKeys;
-        uint8_t previusState = targetGroup;
+    bool RequestInterrupt = false;
 
-        if (preessed) {
-            targetGroup &= ~(1 << bit);
-
-            if ((previusState >> bit) & 1) {
-                requestInterrupt = true;
-            }
-        } else {
-            targetGroup |= (1 << bit);
-        }
-    }
+    void updateState(int bit, bool isDirection,bool Pressed);
 };
-
 #endif

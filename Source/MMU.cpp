@@ -15,10 +15,10 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include "MMU.h"
-#include "PPU.h"
+#include "MMU.hpp"
+#include "PPU.hpp"
 
-MMU::MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Timers &timers, WRAM &wram) : bios(&bios), rom(&rom), interrupts(&interrupts), timers(&timers), wram(&wram) {
+MMU::MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram) : bios(&bios), rom(&rom), interrupts(&interrupts), joypad(&joypad), timers(&timers), wram(&wram) {
     std::printf("-=MMU class initialized=-\n");
 }
 
@@ -41,8 +41,9 @@ uint8_t MMU::readByte(uint16_t address) {
         data = ppu->readOAM(address);
     } else if (address >= 0xFEA0 && address <= 0xFEFF) { // Unusable — open bus
         // FIX: upper bound was 0xFF70, missing 0xFF71-0xFF7F
-    } else if (address >= 0xFF00 && address <= 0xFF7F) {     // I/O Registers
-        if (address == 0xFF00) {                             // Joypad
+    } else if (address >= 0xFF00 && address <= 0xFF7F) { // I/O Registers
+        if (address == 0xFF00) {                         // Joypad
+            data = joypad->readIO();
         } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial
         } else if (address >= 0xFF04 && address <= 0xFF07) { // Timers
             data = timers->receivingData(address);
@@ -95,16 +96,21 @@ void MMU::writeByte(uint16_t address, uint8_t data) {
         ppu->writeOAM(address, data);
     } else if (address >= 0xFEA0 && address <= 0xFEFF) { // Unusable — ignore
         // FIX: upper bound was 0xFF70, missing 0xFF71-0xFF7F
-    } else if (address >= 0xFF00 && address <= 0xFF7F) {     // I/O Registers
-        if (address == 0xFF00) {                             // Joypad
+    } else if (address >= 0xFF00 && address <= 0xFF7F) { // I/O Registers
+        if (address == 0xFF00) {
+            joypad->writeIO(data);                           // Joypad
         } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial
-            if ((data >= 32 && data <= 126) || data == '\n' || data == '\r') {
-                std::printf("%c", data);
-            } else {
-                // Optional: Print hex for debugging games
-                std::printf("[0x%02X]", data);
+            if (address == 0xFF01) {
+                // SB — serial data, print character
+                if ((data >= 32 && data <= 126) || data == '\n')
+                    std::printf("%c", data);
+                std::fflush(stdout);
+            } else if (address == 0xFF02) {
+                // SC — if bit 7 set: transfer requested, fire serial interrupt immediately
+                if (data & 0x80) {
+                    interrupts->Registers.IF |= 0x08; // bit 3 = serial interrupt
+                }
             }
-            std::fflush(stdout);
         } else if (address >= 0xFF04 && address <= 0xFF07) { // Timers
             timers->sendingData(address, data);
         } else if (address == 0xFF0F) {                      // IF

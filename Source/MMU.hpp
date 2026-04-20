@@ -20,7 +20,7 @@
 
 #include "BIOS.hpp"
 #include "EmulationUtils.hpp"
-#include "Controller.hpp"
+#include "Joypad.hpp"
 #include "ROM.hpp"
 #include "Timers.hpp"
 #include "WRAM.hpp"
@@ -28,7 +28,7 @@
 class PPU;
 class MMU {
 public:
-    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Controller &controller, Timers &timers, WRAM &wram);
+    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram);
     /*
      * 8Bit read/write functions
      * @param address The address to read from or write to.
@@ -55,7 +55,7 @@ private:
     BIOS *bios = nullptr;
     ROM *rom = nullptr;
     Interrupts *interrupts = nullptr;
-    Controller *controller = nullptr;
+    Joypad *joypad = nullptr;
     Timers *timers = nullptr;
     WRAM *wram = nullptr;
     PPU *ppu = nullptr;
