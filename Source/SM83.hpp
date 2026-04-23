@@ -27,6 +27,7 @@ public:
 
     int step();
 
+    bool getDoubleSpeed();
 private:
     MMU *mmu = nullptr;
     CPURegisters Registers;

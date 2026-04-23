@@ -27,19 +27,20 @@
 #include "Timers.hpp"
 #include "WRAM.hpp"
 
-#define F_BIOS "Resource/BIOS/gb.bin"
-#define F_CBIOS "Resource/BIOS/cgb.bin"
-
-#define F_ROM "Resource/ROMS/pokemon.gbc"
-
+// --- Define BIOS Binaries ------------------------------------------------------
+#define F_GB_BIOS "Resource/BIOS/gb.bin"
+#define F_CGB_BIOS "Resource/BIOS/cgb.bin"
+// -- Define ROM Binaries ---------------------------------------------------------
+#define F_ROM "Resource/ROMS/pokemon.gb"
+// -- Define Window ICON --------------------------------------------------------
 #define F_ICON "Resource/GkotzamBoy.png"
 
 int main() {
 
     // --- Load BIOS and ROM ---------------------------------------------------
     BIOS bios;
-    bios.loadGB_BIOS(F_BIOS);
-    bios.loadCGB_BIOS(F_CBIOS);
+    bios.loadGB_BIOS(F_GB_BIOS);
+    bios.loadCGB_BIOS(F_CGB_BIOS);
 
     ROM *rom = ROM::loadROM(F_ROM);
     bool CGBMode = (rom->receivingData(0x143) & 0x80) != 0;
@@ -83,23 +84,20 @@ int main() {
                 std::printf("[!]SDL: Terminate Signal (ESC KEY PRESSED).\n");
                 running = false;
             }
-            // joypad.handlerEvent(event);
         }
 
-        /*
-        if (joypad.checkInterrupt()) {
-            uint8_t if_flag = mmu.readByte(IFaddress);
-            mmu.writeByte(IFaddress, if_flag | 0x10);
-        }
-            */
-
-        // Step CPU and advance subsystems by the same number of T-cycles
         int cycles = sm83.step();
         timers.updateTimers(cycles);
 
-        // Step PPU — returns true when VBlank starts (new frame is ready)
-        if (ppu.step(cycles))
-            ppu.present(); // upload framebuffer to screen
+        if (sm83.getDoubleSpeed()) {
+            if (ppu.step(cycles / 2)) {
+                ppu.present();
+            }
+        } else {
+            if (ppu.step(cycles)) {
+                ppu.present();
+            }
+        }
     }
 
     // --- Shutdown ------------------------------------------------------------

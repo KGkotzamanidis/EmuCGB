@@ -140,9 +140,13 @@ void SM83::handleInterrupts() {
 
         PUSH_nn(Registers.PC);
         Registers.PC = addressInterruptHandler;
-        
+
         cycleCount = 20;
     }
+}
+
+bool SM83::getDoubleSpeed() {
+    return Registers.DoubleSpeed;
 }
 
 uint8_t SM83::n8() {
