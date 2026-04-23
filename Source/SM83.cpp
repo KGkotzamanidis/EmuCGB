@@ -64,94 +64,87 @@ const int CGB_PrefixedInstruction_Cycle[256] ={
 
 SM83::SM83(MMU &mmu) : mmu(&mmu) {
     cycleCount = 0;
-    std::printf("-=SM83 class initialized=-\n");
+    std::printf("[!]SM83 Constructor Initiallized\n");
 }
 
 int SM83::step() {
-    // 1. Get Interrupt Status
-    uint8_t ie = mmu->readByte(0xFFFF);
-    uint8_t if_flag = mmu->readByte(0xFF0F);
-    uint8_t pending = ie & if_flag & 0x1F;
+    Registers.ie_flag = mmu->readByte(IEaddress);
+    Registers.if_flag = mmu->readByte(IFaddress);
 
-    // 2. Wake Up Logic
-    // If ANY interrupt is pending, the CPU MUST wake up from HALT
-    // regardless of the IME state.
+    uint8_t pending = Registers.ie_flag & Registers.if_flag & 0x1F;
+
+    // 1. Wake From Halt when Interrupt is pending!
     if (pending != 0) {
         Registers.isHalted = false;
     }
 
-    // 3. Interrupt Handler (The Jump)
-    // We only jump to the vector (0x40, etc.) if IME is globally enabled.
+    // 2. Interrupt Handler -> Jump to Interrupt ()
     if (Registers.IME && pending != 0) {
-        handleInterrupts(); // This sets cycleCount to 20
+        handleInterrupts();
         return cycleCount;
     }
 
-    // 4. EI Delay Logic
-    // IME becomes true only AFTER the instruction following EI executes.
+    // 3. EI Delay Logic
     if (Registers.IME_pending) {
         Registers.IME = true;
         Registers.IME_pending = false;
     }
 
-    // 5. Halt Idle
+    // 4. Halt Idle Logic
     if (Registers.isHalted) {
-        return 4; // Consume 1 M-Cycle while waiting
+        return 4;
     }
 
+    // 5. Execute the Opcode
     executeInstruction();
 
     return cycleCount;
 }
 
-void SM83::handleInterrupts(void) {
-    uint8_t ie = mmu->readByte(0xFFFF);
-    uint8_t if_flag = mmu->readByte(0xFF0F);
+void SM83::handleInterrupts() {
+    Registers.ie_flag = mmu->readByte(IEaddress);
+    Registers.if_flag = mmu->readByte(IFaddress);
 
-    uint8_t pending = ie & if_flag;
+    uint8_t pending = Registers.ie_flag & Registers.if_flag;
 
-    if (pending == 0)
+    if (pending == 0) {
         return;
+    }
 
-    uint16_t targetVector = 0;
+    uint16_t addressInterruptHandler = 0x00;
     int bitToClear = -1;
 
-    if (pending & 0x01) { // V-Blank
-        targetVector = 0x40;
+    if (pending & VBlankInterrupt) {
+        addressInterruptHandler = 0x40;
         bitToClear = 0;
-    } else if (pending & 0x02) { // LCD STAT
-        targetVector = 0x48;
+    } else if (pending & LCDCInterrupt) {
+        addressInterruptHandler = 0x48;
         bitToClear = 1;
-    } else if (pending & 0x04) { // Timer
-        targetVector = 0x50;
+    } else if (pending & TimerInterrupt) {
+        addressInterruptHandler = 0x50;
         bitToClear = 2;
-    } else if (pending & 0x08) { // Serial
-        targetVector = 0x58;
+    } else if (pending & SerrialInterrupt) {
+        addressInterruptHandler = 0x58;
         bitToClear = 3;
-    } else if (pending & 0x10) { // Joypad
-        targetVector = 0x60;
+    } else if (pending & JoypadInterrupt) {
+        addressInterruptHandler = 0x60;
         bitToClear = 4;
     }
 
     if (bitToClear != -1) {
-        // --- START INTERRUPT SERVICE ---
-
-        // A. Disable IME immediately (no more interrupts while servicing)
         Registers.IME = false;
-        Registers.isHalted = false; // Interrupts wake the CPU from HALT
+        Registers.isHalted = false;
 
-        // B. Clear the IF bit we are about to handle
-        if_flag &= ~(1 << bitToClear);
-        mmu->writeByte(0xFF0F, if_flag);
+        Registers.if_flag &= ~(1 << bitToClear);
+        mmu->writeByte(IFaddress, Registers.if_flag);
 
-        // C. The Hardware CALL: Push PC and Jump to vector
-        // This process takes 20 clocks (5 M-cycles)
         PUSH_nn(Registers.PC);
-        Registers.PC = targetVector;
-
+        Registers.PC = addressInterruptHandler;
+        
         cycleCount = 20;
     }
 }
+
 uint8_t SM83::n8() {
     // return mmu->readByte(Registers.PC++);
     uint8_t data = mmu->readByte(Registers.PC);

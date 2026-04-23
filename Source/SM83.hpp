@@ -15,8 +15,8 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef _SM83_H_
-#define _SM83_H_
+#ifndef SM83_HPP
+#define SM83_HPP
 
 #include "HWRegisters.hpp"
 #include "MMU.hpp"
