@@ -28,7 +28,7 @@
 class PPU;
 class MMU {
 public:
-    MMU(BIOS &bios, ROM *rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram);
+    MMU(BIOS &bios, ROM *rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram, bool CGBMode);
     /*
      * 8Bit read/write functions
      * @param address The address to read from or write to.
@@ -51,6 +51,8 @@ public:
 
     void connectPPU(PPU &ppu);
 
+    bool isCBGMode();
+
 private:
     BIOS *bios = nullptr;
     ROM *rom = nullptr;
@@ -64,6 +66,6 @@ private:
     uint8_t KEY_0 = 0x04;
     uint8_t KEY_1 = 0x7E;
 
-    bool CGBMode;
+    bool CGBMode = false;
 };
 #endif

@@ -27,17 +27,23 @@ class BIOS {
 public:
     BIOS();
 
-    std::vector<uint8_t> BIOSData;
+    std::vector<uint8_t> GB_BIOSData;
+    std::vector<uint8_t> CGB_BIOSData;
 
-    bool isBIOSLoaded;
-    bool BootBIOS;
-
-    void loadBIOS(std::string BIOSFilePath);
+    void loadGB_BIOS(std::string BIOSFilePath);
+    void loadCGB_BIOS(std::string BIOSFilePath);
 
     uint8_t receivingData(uint16_t address);
 
+    bool isGB_BIOSUP;
+    bool isCGB_BIOSUP;
+    bool BOOT_BIOS;
+
 private:
-    std::streamsize BIOSSize;
-    uint8_t *BIOSPtr;
+    std::streamsize GB_BIOSize;
+    std::streamsize CGB_BIOSize;
+
+    uint8_t *GB_BIOSPtr;
+    uint8_t *CGB_BIOSPtr;
 };
 #endif

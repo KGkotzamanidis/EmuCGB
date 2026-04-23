@@ -27,18 +27,22 @@
 #include "Timers.hpp"
 #include "WRAM.hpp"
 
-#define F_ROM "Resource/ROMS/tetris.gb"
-#define F_BIOS "Resource/BIOS/dmg0.bin"
+#define F_BIOS "Resource/BIOS/gb.bin"
+#define F_CBIOS "Resource/BIOS/cgb.bin"
+
+#define F_ROM "Resource/ROMS/pokemon.gbc"
+
 #define F_ICON "Resource/GkotzamBoy.png"
 
 int main() {
 
     // --- Load BIOS and ROM ---------------------------------------------------
     BIOS bios;
-    bios.loadBIOS(F_BIOS);
+    bios.loadGB_BIOS(F_BIOS);
+    bios.loadCGB_BIOS(F_CBIOS);
 
     ROM *rom = ROM::loadROM(F_ROM);
-    bool CGBMode = (rom->receivingData(0x143) & 0x80) == 0x80;
+    bool CGBMode = (rom->receivingData(0x143) & 0x80) != 0;
 
     // --- Construct all subsystems -------------------------------------------
     Interrupts interrupts;
@@ -50,7 +54,7 @@ int main() {
     // cgbMode comes from the cartridge header parsed by rom.loadROM().
     PPU ppu(interrupts, CGBMode);
 
-    MMU mmu(bios, rom, interrupts, joypad, timers, wram);
+    MMU mmu(bios, rom, interrupts, joypad, timers, wram, CGBMode);
     SM83 sm83(mmu);
 
     // Wire PPU into MMU — MUST happen before the first sm83.step(),
