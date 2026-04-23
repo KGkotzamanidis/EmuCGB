@@ -15,8 +15,8 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef _BIOS_H_
-#define _BIOS_H_
+#ifndef BIOS_HPP
+#define BIOS_HPP
 
 #include <cstdint>
 #include <fstream>
@@ -29,8 +29,8 @@ public:
 
     std::vector<uint8_t> BIOSData;
 
-    bool isBIOSLoaded = false;
-    bool BootBIOS = false;
+    bool isBIOSLoaded;
+    bool BootBIOS;
 
     void loadBIOS(std::string BIOSFilePath);
 

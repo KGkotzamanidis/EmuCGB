@@ -18,13 +18,16 @@
 #include "BIOS.hpp"
 
 BIOS::BIOS() {
-    std::printf("-=BIOS class initialized=-\n");
+    BootBIOS = false;
+    isBIOSLoaded = false;
+
+    std::printf("[!]BIOS Constructor Initiallized\n");
 }
 
 void BIOS::loadBIOS(std::string BIOSFilePath) {
     std::ifstream BIOSReader(BIOSFilePath, std::ios::in | std::ios::ate | std::ios::binary);
 
-    std::printf("\nTry to load BIOS from %s\n", BIOSFilePath.c_str());
+    std::printf("\n[?]BIOS: Loading BIOS from %s\n", BIOSFilePath.c_str());
 
     if (BIOSReader.is_open()) {
         BIOSReader.seekg(0, std::ios::end);
@@ -36,9 +39,9 @@ void BIOS::loadBIOS(std::string BIOSFilePath) {
         isBIOSLoaded = true;
         BootBIOS = true;
         BIOSPtr = BIOSData.data();
-        std::printf("BIOS file readed successfully\nSize:(%zu KiB) @ Address: 0x%p\n", BIOSSize, BIOSPtr);
+        std::printf("[!]BIOS: Successfully Load Size:(%zu KiB) @ Address: 0x%p\n", BIOSSize, BIOSPtr);
     } else {
-        std::printf("BIOS file not found\n");
+        std::printf("[X]BIOS: File not found.\n");
         isBIOSLoaded = false;
         BootBIOS = false;
         BIOSSize = 0;
