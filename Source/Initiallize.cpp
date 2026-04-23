@@ -27,8 +27,8 @@
 #include "Timers.hpp"
 #include "WRAM.hpp"
 
-#define F_ROM "Resource/tetris.gb"
-#define F_BIOS "Resource/dmg0.bin"
+#define F_ROM "Resource/ROMS/tetris.gb"
+#define F_BIOS "Resource/BIOS/dmg0.bin"
 #define F_ICON "Resource/GkotzamBoy.png"
 
 int main() {
