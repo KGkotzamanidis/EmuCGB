@@ -16,10 +16,10 @@
 ## 🚀 Key Features
 
 * **🕹️ Core Emulation**: Full Sharp LR35902 CPU instruction set implementation.
-* **🎨 CGB Support**: Vibrant 15-bit color palettes and double-speed mode.
-* **💾 Memory Banking**: Support for `MBC1`, `MBC3` (+RTC), and `MBC5` controllers.
+* **🎨 CGB Support**: *(Work in Progress)* Vibrant 15-bit color palettes and double-speed mode.
+* **💾 Memory Banking**: Support for `MBC1`, `MBC3+RTC` controllers.
 * **📺 Pixel Processing**: Cycle-accurate PPU rendering for backgrounds and sprites.
-* **⌨️ Responsive Input**: Low-latency mapping for keyboard and controllers.
+* **⌨️ Responsive Input**: *(Work in Progress)* Low-latency mapping for keyboard and controllers.
 * **🛠️ Debug Ready**: Clean internal bus structure for easy state inspection.
 
 ---
