@@ -37,8 +37,8 @@ int main() {
     BIOS bios;
     bios.loadBIOS(F_BIOS);
 
-    ROM rom;
-    rom.loadROM(F_ROM);
+    ROM *rom = ROM::loadROM(F_ROM);
+    bool CGBMode = (rom->receivingData(0x143) & 0x80) == 0x80;
 
     // --- Construct all subsystems -------------------------------------------
     Interrupts interrupts;
@@ -48,7 +48,7 @@ int main() {
 
     // PPU must be constructed BEFORE MMU so connectPPU() can wire it in.
     // cgbMode comes from the cartridge header parsed by rom.loadROM().
-    PPU ppu(interrupts, rom.CGBmode);
+    PPU ppu(interrupts, CGBMode);
 
     MMU mmu(bios, rom, interrupts, joypad, timers, wram);
     SM83 sm83(mmu);
@@ -56,10 +56,6 @@ int main() {
     // Wire PPU into MMU — MUST happen before the first sm83.step(),
     // otherwise any VRAM/OAM/LCD access will hit a nullptr and crash.
     mmu.connectPPU(ppu);
-
-    std::printf("BIOS loaded: %s, BootBIOS: %s\n",
-                bios.isBIOSLoaded ? "yes" : "no",
-                bios.BootBIOS ? "yes" : "no");
 
     // --- Open the SDL3 window -----------------------------------------------
     if (!ppu.initSDL("EmuCGB", 3, F_ICON)) {
@@ -78,13 +74,20 @@ int main() {
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
-            joypad.handlerEvent(event);
+
+            if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+                std::printf("[!]SDL: Terminate Signal (ESC KEY PRESSED).\n");
+                running = false;
+            }
+            // joypad.handlerEvent(event);
         }
 
+        /*
         if (joypad.checkInterrupt()) {
             uint8_t if_flag = mmu.readByte(IFaddress);
             mmu.writeByte(IFaddress, if_flag | 0x10);
         }
+            */
 
         // Step CPU and advance subsystems by the same number of T-cycles
         int cycles = sm83.step();
@@ -97,5 +100,9 @@ int main() {
 
     // --- Shutdown ------------------------------------------------------------
     ppu.destroySDL();
+
+    // --- Save Rom Data -------------------------------------------------------
+    rom->saveData();
+
     return 0;
 }
