@@ -17,7 +17,7 @@
  */
 #include "WRAM.hpp"
 WRAM::WRAM() {
-    std::printf("-=WRAM class initialized=-\n");
+    std::printf("[!]WRAM Constructor Initiallized\n");
 }
 
 uint8_t WRAM::receivingData(uint16_t address) {

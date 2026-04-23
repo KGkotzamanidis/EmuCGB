@@ -15,8 +15,8 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef _MMU_H_
-#define _MMU_H_
+#ifndef MMU_HPP
+#define MMU_HPP
 
 #include "BIOS.hpp"
 #include "EmulationUtils.hpp"
@@ -28,7 +28,7 @@
 class PPU;
 class MMU {
 public:
-    MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram);
+    MMU(BIOS &bios, ROM *rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram);
     /*
      * 8Bit read/write functions
      * @param address The address to read from or write to.
@@ -63,5 +63,7 @@ private:
     std::vector<uint8_t> HRAM = std::vector<uint8_t>(0x7F, 0);
     uint8_t KEY_0 = 0x04;
     uint8_t KEY_1 = 0x7E;
+
+    bool CGBMode;
 };
 #endif

@@ -18,8 +18,9 @@
 #include "MMU.hpp"
 #include "PPU.hpp"
 
-MMU::MMU(BIOS &bios, ROM &rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram) : bios(&bios), rom(&rom), interrupts(&interrupts), joypad(&joypad), timers(&timers), wram(&wram) {
-    std::printf("-=MMU class initialized=-\n");
+MMU::MMU(BIOS &bios, ROM *rom, Interrupts &interrupts, Joypad &joypad, Timers &timers, WRAM &wram) : bios(&bios), rom(rom), interrupts(&interrupts), joypad(&joypad), timers(&timers), wram(&wram) {
+    CGBMode = (rom->receivingData(0x143) & 0x80) == 0x80;
+    std::printf("[!]MMU Constructor Initiallized\n");
 }
 
 uint8_t MMU::readByte(uint16_t address) {
@@ -43,7 +44,6 @@ uint8_t MMU::readByte(uint16_t address) {
         // FIX: upper bound was 0xFF70, missing 0xFF71-0xFF7F
     } else if (address >= 0xFF00 && address <= 0xFF7F) { // I/O Registers
         if (address == 0xFF00) {                         // Joypad
-            data = joypad->readIO();
         } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial
         } else if (address >= 0xFF04 && address <= 0xFF07) { // Timers
             data = timers->receivingData(address);
@@ -55,21 +55,21 @@ uint8_t MMU::readByte(uint16_t address) {
             data = ppu->readIO(address);
         } else if (address == 0xFF46) {                                        // OAM DMA — write-only
             data = 0xFF;                                                       // reads return open bus
-        } else if ((address >= 0xFF4C && address <= 0xFF4D) && rom->CGBmode) { // KEY0/KEY1
+        } else if ((address >= 0xFF4C && address <= 0xFF4D) && CGBMode) { // KEY0/KEY1
             data = (address == 0xFF4C) ? KEY_0 : KEY_1;
-        } else if (address == 0xFF4F && rom->CGBmode) { // VBK → PPU
+        } else if (address == 0xFF4F && CGBMode) { // VBK → PPU
             data = ppu->readIO(address);
         } else if (address == 0xFF50) { // Boot ROM mapped flag
             data = bios->BootBIOS ? 0x00 : 0x01;
-        } else if ((address >= 0xFF51 && address <= 0xFF55) && rom->CGBmode) { // HDMA
+        } else if ((address >= 0xFF51 && address <= 0xFF55) && CGBMode) { // HDMA
             data = 0xFF;                                                       // stub — HDMA not yet implemented
-        } else if (address == 0xFF56 && rom->CGBmode) {                        // IR port
+        } else if (address == 0xFF56 && CGBMode) {                        // IR port
             data = 0xFF;                                                       // stub
-        } else if ((address >= 0xFF68 && address <= 0xFF6B) && rom->CGBmode) { // CGB palettes → PPU
+        } else if ((address >= 0xFF68 && address <= 0xFF6B) && CGBMode) { // CGB palettes → PPU
             data = ppu->readIO(address);
-        } else if (address == 0xFF6C && rom->CGBmode) { // Object priority mode
+        } else if (address == 0xFF6C && CGBMode) { // Object priority mode
             data = 0xFF;                                // stub
-        } else if (address == 0xFF70 && rom->CGBmode) { // SVBK — WRAM bank
+        } else if (address == 0xFF70 && CGBMode) { // SVBK — WRAM bank
             data = wram->receivingData(address);
         }
         // FIX: HRAM index was (address & 0x7F) — wrong for 0xFF80+
@@ -97,20 +97,8 @@ void MMU::writeByte(uint16_t address, uint8_t data) {
     } else if (address >= 0xFEA0 && address <= 0xFEFF) { // Unusable — ignore
         // FIX: upper bound was 0xFF70, missing 0xFF71-0xFF7F
     } else if (address >= 0xFF00 && address <= 0xFF7F) { // I/O Registers
-        if (address == 0xFF00) {
-            joypad->writeIO(data);                           // Joypad
+        if (address == 0xFF00) {                         // Joypad
         } else if (address >= 0xFF01 && address <= 0xFF02) { // Serial
-            if (address == 0xFF01) {
-                // SB — serial data, print character
-                if ((data >= 32 && data <= 126) || data == '\n')
-                    std::printf("%c", data);
-                std::fflush(stdout);
-            } else if (address == 0xFF02) {
-                // SC — if bit 7 set: transfer requested, fire serial interrupt immediately
-                if (data & 0x80) {
-                    interrupts->Registers.IF |= 0x08; // bit 3 = serial interrupt
-                }
-            }
         } else if (address >= 0xFF04 && address <= 0xFF07) { // Timers
             timers->sendingData(address, data);
         } else if (address == 0xFF0F) {                      // IF
@@ -123,18 +111,18 @@ void MMU::writeByte(uint16_t address, uint8_t data) {
             // The CPU writes the source page (e.g. 0xC0 = copy from 0xC000).
             // startDMA reads 160 bytes via the MMU readByte callback into OAM.
             ppu->startDMA(data, [](uint16_t addr, void *ctx) { return reinterpret_cast<MMU *>(ctx)->readByte(addr); }, this);
-        } else if ((address >= 0xFF4C && address <= 0xFF4D) && rom->CGBmode) { // KEY0/KEY1
-        } else if (address == 0xFF4F && rom->CGBmode) {                        // VBK → PPU
+        } else if ((address >= 0xFF4C && address <= 0xFF4D) && CGBMode) { // KEY0/KEY1
+        } else if (address == 0xFF4F && CGBMode) {                        // VBK → PPU
             ppu->writeIO(address, data);
         } else if (address == 0xFF50) { // Boot ROM disable
             if (data & 0x01)
                 bios->BootBIOS = false;
-        } else if ((address >= 0xFF51 && address <= 0xFF55) && rom->CGBmode) { // HDMA
-        } else if (address == 0xFF56 && rom->CGBmode) {                        // IR port
-        } else if ((address >= 0xFF68 && address <= 0xFF6B) && rom->CGBmode) { // CGB palettes → PPU
+        } else if ((address >= 0xFF51 && address <= 0xFF55) && CGBMode) { // HDMA
+        } else if (address == 0xFF56 && CGBMode) {                        // IR port
+        } else if ((address >= 0xFF68 && address <= 0xFF6B) && CGBMode) { // CGB palettes → PPU
             ppu->writeIO(address, data);
-        } else if (address == 0xFF6C && rom->CGBmode) { // Object priority mode
-        } else if (address == 0xFF70 && rom->CGBmode) { // SVBK — WRAM bank
+        } else if (address == 0xFF6C && CGBMode) { // Object priority mode
+        } else if (address == 0xFF70 && CGBMode) { // SVBK — WRAM bank
             wram->sendingData(address, data);
         }
         // FIX: HRAM index address - 0xFF80 instead of address & 0x7F

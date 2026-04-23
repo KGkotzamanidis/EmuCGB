@@ -21,5 +21,5 @@ Interrupts::Interrupts() {
 
     Registers.IE = 0x00;
     Registers.IF = 0x00;
-    std::printf("-=Interrupts class initialized=-\n");
+    std::printf("[!]Interrupts Constructor Initiallized\n");
 }

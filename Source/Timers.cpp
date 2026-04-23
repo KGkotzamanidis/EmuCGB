@@ -18,7 +18,7 @@
 #include "Timers.hpp"
 
 Timers::Timers(Interrupts &interrupts) : interrupts(&interrupts) {
-    std::printf("-=Timers class initialized=-\n");
+    std::printf("[!]Timers Constructor Initiallized\n");
 }
 
 uint8_t Timers::receivingData(uint16_t address) {
@@ -76,7 +76,7 @@ void Timers::updateTimers(int lastCycleCount) {
 
             if (TIMA == 0) {
                 TIMA = TMA;
-                interrupts->Registers.IF |= timerOverflow;
+                interrupts->Registers.IF |= TimerInterrupt;
             }
         }
     }
