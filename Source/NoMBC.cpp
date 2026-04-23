@@ -15,28 +15,15 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef ROM_HPP
-#define ROM_HPP
+#include "NoMBC.hpp"
 
-#include <cstdint>
-#include <cstring>
-#include <ctime>
-#include <fstream>
-#include <iostream>
-#include <vector>
+NoMBC::NoMBC(std::vector<uint8_t> *ROMData, std::streamsize ROMSize) : ROMData(ROMData), ROMSize(ROMSize) {
+    std::printf("[!]NoMBC Constructor Initiallized\n");
+}
 
-class ROM {
-public:
-    ROM();
-    virtual ~ROM() { /*Start Calling the cleanning NoMBC,MBC1,MBC2,MBC3*/ };
-
-    virtual uint8_t receivingData(uint16_t address) = 0;
-    virtual void sendingData(uint16_t address, uint8_t data) = 0;
-
-    virtual void saveData() = 0;
-
-    static ROM *loadROM(std::string ROMFilePath);
-
-private:
-};
-#endif
+NoMBC::~NoMBC() {
+    this->ROMData->clear();
+}
+uint8_t NoMBC::receivingData(uint16_t address) {
+    return (*ROMData)[address & 0x7FFF];
+}

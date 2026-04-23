@@ -76,15 +76,12 @@
 #define SVBKaddress 0xFF70     // WRAM bank (CGB)
 #define IEaddress 0xFFFF       // Interrupt enable
 
-/* Overflow Bytes */
-#define timerOverflow 0x4
-#define buttonOverflow 0x10
-
-/* Interrupts Bytes */
-#define LCDCInterrupt 0x2
-
+/* Interrupt Byte Overflow*/
 #define VBlankInterrupt 0x01
-#define HBlankInterrupt 0x08
+#define LCDCInterrupt 0x02
+#define TimerInterrupt 0x04
+#define SerrialInterrupt 0x08
+#define JoypadInterrupt 0x10
 
 /* PPU Mode */
 #define mode0 0x8

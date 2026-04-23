@@ -109,7 +109,7 @@ PPU::PPU(Interrupts &interrupts, bool cgbMode)
     std::memset(OAM, 0, sizeof(OAM));
     fb.fill(DMG_COLORS[0]);
     setMode(Mode::OAMScan);
-    std::printf("-=PPU class initialized (mode: %s)=-\n", cgbMode ? "CGB" : "DMG");
+    std::printf("[!]PPU Constructor Initiallized (mode: %s)\n", cgbMode ? "CGB" : "DMG");
 }
 
 PPU::~PPU() {
@@ -123,7 +123,7 @@ bool PPU::initSDL(const char *title, int scaleFactor, const char *icon) {
     scale = scaleFactor;
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        std::printf("PPU: SDL_Init failed: %s\n", SDL_GetError());
+        std::printf("[X]PPU: SDL_Init failed: %s\n", SDL_GetError());
         return false;
     }
 
@@ -133,13 +133,13 @@ bool PPU::initSDL(const char *title, int scaleFactor, const char *icon) {
     window = SDL_CreateWindow(title,
                               GB_W * scale, GB_H * scale, 0);
     if (!window) {
-        std::printf("PPU: SDL_CreateWindow failed: %s\n", SDL_GetError());
+        std::printf("[X]PPU: SDL_CreateWindow failed: %s\n", SDL_GetError());
         return false;
     }
 
     renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
-        std::printf("PPU: SDL_CreateRenderer failed: %s\n", SDL_GetError());
+        std::printf("[X]PPU: SDL_CreateRenderer failed: %s\n", SDL_GetError());
         return false;
     }
 
@@ -154,14 +154,14 @@ bool PPU::initSDL(const char *title, int scaleFactor, const char *icon) {
                                 SDL_TEXTUREACCESS_STREAMING,
                                 GB_W, GB_H);
     if (!texture) {
-        std::printf("PPU: SDL_CreateTexture failed: %s\n", SDL_GetError());
+        std::printf("[X]PPU: SDL_CreateTexture failed: %s\n", SDL_GetError());
         return false;
     }
 
     // Nearest-neighbour keeps pixels sharp when scaled up.
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     setIcon(window, icon);
-    std::printf("PPU: SDL3 window ready (%dx%d, scale=%d)\n",
+    std::printf("[!]PPU: SDL3 window ready (%dx%d, scale=%d)\n",
                 GB_W, GB_H, scale);
     return true;
 }
@@ -186,6 +186,7 @@ void PPU::destroySDL() {
         SDL_DestroyWindow(window);
         window = nullptr;
     }
+    std::printf("[!]PPU: Turning off.\n");
 }
 
 // present() — uploads the framebuffer to the GPU and shows it on screen.
