@@ -15,8 +15,8 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef _PPU_H_
-#define _PPU_H_
+#ifndef PPU_HPP
+#define PPU_HPP
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>

@@ -15,8 +15,8 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef _HWREGISTERS_H_
-#define _HWREGISTERS_H_
+#ifndef HWREGISTERS_HPP
+#define HWREGISTERS_HPP
 
 #include <cstdint>
 
@@ -24,6 +24,9 @@ struct CPURegisters {
     uint16_t SP;
     uint16_t PC;
 
+    uint8_t ie_flag;
+    uint8_t if_flag;
+    
     union {
         struct {
             uint8_t F;

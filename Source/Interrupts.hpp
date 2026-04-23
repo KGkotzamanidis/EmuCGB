@@ -15,8 +15,8 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef _INTERRUPT_H_
-#define _INTERRUPT_H_
+#ifndef INTERRUPT_HPP
+#define INTERRUPT_HPP
 
 #include <iostream>
 

@@ -15,8 +15,8 @@
  *You should have received a copy of the GNU General Public License
  *along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef TIMERS_H
-#define TIMERS_H
+#ifndef TIMERS_HPP
+#define TIMERS_HPP
 
 #include "EmulationUtils.hpp"
 #include "Interrupts.hpp"
