@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="EmuCGB.vcxproj" Id="d913a470-b285-4547-b600-e30d924ba279" />
+</Solution>
