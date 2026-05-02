@@ -25,7 +25,7 @@ INCLUDES	= -I$(INSTALL_DIR)/include
 # ======================================================================
 # 							Directories
 SRC_DIR		= Source
-DEP_DIR		= Dependencies
+DEP_DIR		= Dependencies/Linux
 OBJ_DIR		= Object
 INSTALL_DIR	= /usr/local
 # ======================================================================
