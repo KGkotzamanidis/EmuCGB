@@ -57,7 +57,7 @@ make build
 
 # Run the Project
 make run
-
+```
 ### 🔧 Build Instructions - Windows
 ```bash
 # Clone the repository
@@ -71,3 +71,4 @@ git clone https://github.com/KGkotzamanidis/EmuCGB.git
 # Extract the SDL3 and SDL_image zip files and copy the contents into the Dependencies/Windows folder.
 
 # Import the Visual Studio Project (EmuCGB.sln) and Build the Solution.
+```
