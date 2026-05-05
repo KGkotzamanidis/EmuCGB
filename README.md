@@ -63,8 +63,8 @@ make run
 # Clone the repository
 git clone https://github.com/KGkotzamanidis/EmuCGB.git
 ```
-# Download [SDL3](https://github.com/libsdl-org/SDL/releases) (SDL3-devel-version-VC.zip)
-# Download [SDL_image](https://github.com/libsdl-org/SDL_image/releases) (SDL3_image-devel-version-VC.zip)
+* **Download** [SDL3](https://github.com/libsdl-org/SDL/releases) (SDL3-devel-version-VC.zip)
+* **Download** [SDL_image](https://github.com/libsdl-org/SDL_image/releases) (SDL3_image-devel-version-VC.zip)
 ```bash
 # Create Dependencies/Windows Folder inside the Project Directory.
 mkdir Dependencies/Windows
