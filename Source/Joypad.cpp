@@ -18,7 +18,7 @@
 #include "Joypad.hpp"
 
 Joypad::Joypad() {
-    std::printf("-=Joypad class initialized=-\n");
+    std::printf("[!]Joypad Constructor Initiallized\n");
 }
 
 void Joypad::writeIO(uint8_t data) {
